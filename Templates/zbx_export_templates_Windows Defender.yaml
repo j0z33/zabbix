@@ -1,0 +1,441 @@
+zabbix_export:
+  version: '6.0'
+  date: '2024-01-19T08:23:54Z'
+  groups:
+    -
+      uuid: 0f538ce79d794d06bd8747afce0fe557
+      name: Windows
+  templates:
+    -
+      uuid: ac12402d33884305b74e2502c942b0e1
+      template: 'Extra - Windows Defender'
+      name: 'Extra - Windows Defender'
+      description: 'Template para Windows Defender'
+      groups:
+        -
+          name: Windows
+      items:
+        -
+          uuid: 87a9350775734915bc932cb969a407e2
+          name: DefenderFullScanRequired
+          type: ZABBIX_ACTIVE
+          key: DefenderFullScanRequired
+          delay: 30m
+          history: 5d
+          trends: '0'
+          value_type: CHAR
+          triggers:
+            -
+              uuid: 02a0fa6df9904c1e95dc96b184ecc532
+              expression: 'last(/Extra - Windows Defender/DefenderFullScanRequired)="True"'
+              name: 'Requiere Full Scan del Antivirus'
+              priority: HIGH
+              description: 'Requiere Full Scan del Antivirus por alguna amenaza'
+        -
+          uuid: 750857ead4f34a00b2787fbf3839aacf
+          name: DefenderInitializationProgress
+          type: ZABBIX_ACTIVE
+          key: DefenderInitializationProgress
+          delay: 30m
+          history: 10d
+          trends: '0'
+          value_type: TEXT
+          triggers:
+            -
+              uuid: 0587462633f0494c9410410caad9f5cc
+              expression: 'last(/Extra - Windows Defender/DefenderInitializationProgress)<>"ServiceStartedSuccessfully"'
+              name: 'Fallo Inicio del servicio antivirus'
+              event_name: 'Fallo Inicio del servicio antivirus'
+              priority: DISASTER
+        -
+          uuid: c68f3d5974344ef0898937ca0eb46444
+          name: DefenderIsTamperProtected
+          type: ZABBIX_ACTIVE
+          key: DefenderIsTamperProtected
+          delay: 50m
+          history: 10d
+          trends: '0'
+          value_type: TEXT
+          triggers:
+            -
+              uuid: 16abffae247341f48acade878d5b88f1
+              expression: 'last(/Extra - Windows Defender/DefenderIsTamperProtected)="False"'
+              name: 'Protección contra alteraciones desactivada'
+              priority: WARNING
+              description: 'La configuración de seguridad de la protección con protección contra alteraciones está desactivada'
+        -
+          uuid: a3c76598d50c4752a7a5058d49dccd24
+          name: DefenderLastFullScan
+          type: ZABBIX_ACTIVE
+          key: DefenderLastFullScan
+          delay: 50m
+          history: 5d
+          trends: 10d
+          triggers:
+            -
+              uuid: 38d12845ae624461b9af9759c4ba8278
+              expression: 'last(/Extra - Windows Defender/DefenderLastFullScan)>=30'
+              name: 'Antigüedad del último análisis completo en más de 30 días'
+              priority: WARNING
+        -
+          uuid: 03588559bd3e4eb4bfbfff68c56edd40
+          name: DefenderLastQuickScan
+          type: ZABBIX_ACTIVE
+          key: DefenderLastQuickScan
+          delay: 50m
+          history: 5d
+          trends: 10d
+          triggers:
+            -
+              uuid: 864111abc07741b18dffde5084473b2c
+              expression: 'last(/Extra - Windows Defender/DefenderLastQuickScan)>7'
+              name: 'Antigüedad del último quick scan en más de 7 días'
+              priority: WARNING
+        -
+          uuid: 7a40192b586149ffb9d2c1487ad97f2d
+          name: DefenderLastUpdateAntivirus
+          type: ZABBIX_ACTIVE
+          key: DefenderLastUpdateAntivirus
+          delay: 50m
+          history: 5d
+          trends: 10d
+          triggers:
+            -
+              uuid: 5cd2a6bba7cb43618ac58ab4065395e1
+              expression: 'last(/Extra - Windows Defender/DefenderLastUpdateAntivirus)>15'
+              name: 'Antigüedad de la firma antivirus en más de 15 días'
+              priority: WARNING
+        -
+          uuid: c631dcc2f00842ba87846de08b394ab9
+          name: DefenderLastUpdateASpyware
+          type: ZABBIX_ACTIVE
+          key: DefenderLastUpdateASpyware
+          delay: 50m
+          history: 5d
+          trends: 10d
+          triggers:
+            -
+              uuid: 9ea8ec7a8aa142da9e5b3ac577dff99f
+              expression: 'last(/Extra - Windows Defender/DefenderLastUpdateASpyware)>15'
+              name: 'Antigüedad de la firma antispyware en más de 15 días'
+              priority: WARNING
+        -
+          uuid: 40d99b8207ef4d438066bdc7b94bc17a
+          name: DefenderLastUpdateNIS
+          type: ZABBIX_ACTIVE
+          key: DefenderLastUpdateNIS
+          delay: 50m
+          history: 5d
+          trends: 10d
+          triggers:
+            -
+              uuid: d60ba76dfbbc40d2922e913dff8bb80b
+              expression: 'last(/Extra - Windows Defender/DefenderLastUpdateNIS)>15'
+              name: 'Antigüedad del último análisis de inspección de red en más de 15 días'
+              priority: WARNING
+        -
+          uuid: b0e49681798c4be59a298990c83f4d16
+          name: DefenderPASSQuickScan
+          type: ZABBIX_ACTIVE
+          key: DefenderPASSQuickScan
+          delay: 50m
+          history: 10d
+          trends: '0'
+          value_type: TEXT
+          triggers:
+            -
+              uuid: c562ad11c83948c6b498b2943da50659
+              expression: 'last(/Extra - Windows Defender/DefenderPASSQuickScan)="True"'
+              name: 'Un Quick Scan programado no se ha completado correctamente durante 2 semanas'
+              priority: HIGH
+        -
+          uuid: e48420ba620f4b25bd2514b4fddd9cc2
+          name: DefenderRealTimeProtectionEnabled
+          type: ZABBIX_ACTIVE
+          key: DefenderRealTimeProtectionEnabled
+          history: 10d
+          trends: '0'
+          value_type: TEXT
+          triggers:
+            -
+              uuid: 120ef185c7a9478a96894a15f3095d2b
+              expression: 'last(/Extra - Windows Defender/DefenderRealTimeProtectionEnabled)="False"'
+              name: 'Protección en tiempo real deshabilitada'
+              priority: DISASTER
+        -
+          uuid: 134d36bb859c4dd8aadfe42fcc17df3b
+          name: DefenderRebootRequired
+          type: ZABBIX_ACTIVE
+          key: DefenderRebootRequired
+          delay: 50m
+          history: 10d
+          trends: '0'
+          value_type: TEXT
+          triggers:
+            -
+              uuid: 0e289da4067a469ba63986630b93e38b
+              expression: 'last(/Extra - Windows Defender/DefenderRebootRequired)="True"'
+              name: 'El antivirus Requiere reinicio del equipo'
+              priority: WARNING
+        -
+          uuid: cec8f7bf1490445c9dc6b9d92a8771e1
+          name: DefenderSignaturesOutOfDate
+          type: ZABBIX_ACTIVE
+          key: DefenderSignaturesOutOfDate
+          delay: 50m
+          history: 10d
+          trends: '0'
+          value_type: TEXT
+          triggers:
+            -
+              uuid: c3a52f90b91e47378e56412593ea0e24
+              expression: 'last(/Extra - Windows Defender/DefenderSignaturesOutOfDate)="True"'
+              name: 'Las firmas de Windows Defender están fuera de fecha'
+              priority: HIGH
+        -
+          uuid: 861a951b16a949e6bfc8a945d472949c
+          name: 'Antivirus State'
+          type: ZABBIX_ACTIVE
+          key: DefenderStatus
+          delay: 5m
+          history: 5d
+          trends: 10d
+          valuemap:
+            name: DefenderStatus
+          triggers:
+            -
+              uuid: 76372ecd0e064309b72b86ee84ad691a
+              expression: |
+                last(/Extra - Windows Defender/DefenderStatus)<>266240 and last(/Extra - Windows Defender/DefenderStatus)<>397312 and last(/Extra - Windows Defender/DefenderStatus)<>397568 and last(/Extra - Windows Defender/DefenderStatus)<>393472 and
+                last(/Extra - Windows Defender/DefenderStatus)<>524288
+              name: 'Antivirus is OUT of date'
+              priority: DISASTER
+              manual_close: 'YES'
+        -
+          uuid: 9b1bd1f45d4f40a488b0c0a9aeae774d
+          name: DefenderStatusAMalwareServices
+          type: ZABBIX_ACTIVE
+          key: DefenderStatusAMalwareServices
+          delay: 50m
+          history: 10d
+          trends: '0'
+          value_type: TEXT
+          description: 'Comprobar si está habilitado el Motor antimalware'
+          triggers:
+            -
+              uuid: e89ae3dfd1ea40cbb9cc7959f3ac425e
+              expression: 'last(/Extra - Windows Defender/DefenderStatusAMalwareServices)="False"'
+              name: 'Motor antimalware deshabilitado'
+              priority: HIGH
+        -
+          uuid: 16878a6897514edf97c05c60008ec78a
+          name: DefenderStatusAntivirusServices
+          type: ZABBIX_ACTIVE
+          key: DefenderStatusAntivirusServices
+          delay: 50m
+          history: 10d
+          trends: '0'
+          value_type: TEXT
+          description: 'Comprobar si está habilitado el Motor antivirus'
+          triggers:
+            -
+              uuid: 18f914d047d441babd18ca6028d2eeba
+              expression: 'last(/Extra - Windows Defender/DefenderStatusAntivirusServices)="False"'
+              name: 'Motor antivirus deshabilitado'
+              priority: HIGH
+        -
+          uuid: 510ab6528df2473ca3db19ef7c19b779
+          name: DefenderStatusASpywareServices
+          type: ZABBIX_ACTIVE
+          key: DefenderStatusASpywareServices
+          delay: 50m
+          history: 10d
+          trends: '0'
+          value_type: TEXT
+          description: 'Comprobar si está habilitado el Motor antispyware'
+          triggers:
+            -
+              uuid: c0b32428235f48e89598dd04a175702a
+              expression: 'last(/Extra - Windows Defender/DefenderStatusASpywareServices)="False"'
+              name: 'Motor antispyware deshabilitado'
+              priority: HIGH
+        -
+          uuid: c2793b194c1345d393f62a4417436556
+          name: DefenderStatusBehaviorMonitor
+          type: ZABBIX_ACTIVE
+          key: DefenderStatusBehaviorMonitor
+          delay: 50m
+          history: 10d
+          trends: '0'
+          value_type: TEXT
+          description: 'Especifica si la supervisión del comportamiento está habilitada'
+          triggers:
+            -
+              uuid: a4976ef9e7df4e7cb1e6d9fce5e88bd3
+              expression: 'last(/Extra - Windows Defender/DefenderStatusBehaviorMonitor)="False"'
+              name: 'La supervisión del comportamiento está deshabilitada'
+              priority: HIGH
+        -
+          uuid: 504e4921819447c58130cef1b61388a3
+          name: DefenderStatusIoavProtectionServices
+          type: ZABBIX_ACTIVE
+          key: DefenderStatusIoavProtectionServices
+          delay: 50m
+          history: 10d
+          trends: '0'
+          value_type: TEXT
+          description: 'Comprueba si el antivirus escanea todos los archivos y archivos adjuntos descargados'
+          triggers:
+            -
+              uuid: f6ec434f67c04024b59f201b54f889ce
+              expression: 'last(/Extra - Windows Defender/DefenderStatusIoavProtectionServices)="False"'
+              name: 'El antivirus no escanea todos los archivos y archivos adjuntos descargados'
+              priority: AVERAGE
+        -
+          uuid: f887d89c91994f489913fa3956650bd5
+          name: DefenderStatusNISServices
+          type: ZABBIX_ACTIVE
+          key: DefenderStatusNISServices
+          delay: 50m
+          history: 10d
+          trends: '0'
+          value_type: TEXT
+          description: 'Comprueba si el sistema de inspección de red está habilitado'
+          triggers:
+            -
+              uuid: e5419f6a43914ae4a5426e8a70212bfc
+              expression: 'last(/Extra - Windows Defender/DefenderStatusNISServices)="False"'
+              name: 'Sistema de inspección de red deshabilitado'
+              priority: AVERAGE
+        -
+          uuid: 0652c966d1924dd7ad7a29a5caf597df
+          name: DefenderStatusOnAccessProtectionServices
+          type: ZABBIX_ACTIVE
+          key: DefenderStatusOnAccessProtectionServices
+          delay: 50m
+          history: 10d
+          trends: '0'
+          value_type: TEXT
+          description: 'Especifica si el antivirus está monitoreando la actividad de archivos y programas en su computadora'
+          triggers:
+            -
+              uuid: 1d4ad63feaec4efea54f5a3575cbe291
+              expression: 'last(/Extra - Windows Defender/DefenderStatusOnAccessProtectionServices)="False"'
+              name: 'No se está monitoreando la actividad de archivos y programas en su computadora'
+              priority: HIGH
+      valuemaps:
+        -
+          uuid: 7bb8d11e7b8b46439dc8502f3c0b64d0
+          name: DefenderStatus
+          mappings:
+            -
+              value: '262144'
+              newvalue: 'UpdateStatus: Up to date ;RealTimeProtectionStatus: Disable'
+            -
+              value: '262160'
+              newvalue: 'UpdateStatus: Out of date ;RealTimeProtectionStatus: Disabled'
+            -
+              value: '266240'
+              newvalue: 'UpdateStatus: Up to date ;RealTimeProtectionStatus: Enabled'
+            -
+              value: '266256'
+              newvalue: 'UpdateStatus: Out of date ;RealTimeProtectionStatus: Enabled'
+            -
+              value: '393216'
+              newvalue: 'UpdateStatus: Up to date ;RealTimeProtectionStatus: Disabled'
+            -
+              value: '393232'
+              newvalue: 'UpdateStatus: Out of date ;RealTimeProtectionStatus: Disabled'
+            -
+              value: '393488'
+              newvalue: 'UpdateStatus: Out of date ;RealTimeProtectionStatus: Disabled'
+            -
+              value: '397312'
+              newvalue: 'UpdateStatus: Up to date ;RealTimeProtectionStatus: Enabled'
+            -
+              value: '397328'
+              newvalue: 'UpdateStatus: Out of date ;RealTimeProtectionStatus: Enabled'
+            -
+              value: '397584'
+              newvalue: 'UpdateStatus: Out of date ;RealTimeProtectionStatus: Enabled'
+            -
+              value: '397568'
+              newvalue: 'UpdateStatus: Up to date; RealTimeProtectionStatus: Enabled'
+            -
+              value: '393472'
+              newvalue: 'UpdateStatus: Up to date ;RealTimeProtectionStatus: Disabled'
+            -
+              value: '1'
+              newvalue: 'Servicio no funcionando'
+            -
+              value: '0'
+              newvalue: 'Sin estado'
+            -
+              value: '2'
+              newvalue: 'El servicio se inició sin ningún motor de protección contra malw'
+            -
+              value: '4'
+              newvalue: 'Pendiente de análisis completo debido a una acción de amenaza'
+            -
+              value: '8'
+              newvalue: 'Reinicio pendiente debido a una acción de amenaza'
+            -
+              value: '16'
+              newvalue: 'Pasos manuales pendientes debido a una acción de amenaza'
+            -
+              value: '32'
+              newvalue: 'Firmas AV desactualizadas'
+            -
+              value: '64'
+              newvalue: 'Firmas AS desactualizadas'
+            -
+              value: '128'
+              newvalue: 'No se ha realizado ningún análisis rápido durante un período esp'
+            -
+              value: '256'
+              newvalue: 'No se ha realizado ningún análisis completo durante un período e'
+            -
+              value: '512'
+              newvalue: 'Escaneo iniciado por el sistema en progreso'
+            -
+              value: '1024'
+              newvalue: 'Sistema iniciado limpieza en progreso'
+            -
+              value: '2048'
+              newvalue: 'Hay muestras pendientes de enviar'
+            -
+              value: '4096'
+              newvalue: 'Producto ejecutándose en modo de evaluación'
+            -
+              value: '8192'
+              newvalue: 'Producto que se ejecuta en modo Windows no original'
+            -
+              value: '16384'
+              newvalue: 'Producto caducado'
+            -
+              value: '32768'
+              newvalue: 'Se requiere escaneo fuera de línea'
+            -
+              value: '65536'
+              newvalue: 'El servicio se está cerrando como parte del cierre del sistema'
+            -
+              value: '131072'
+              newvalue: 'La correccion de amenazas falló críticamente'
+            -
+              value: '524288'
+              newvalue: 'No se han establecido indicadores de estado (estado bien inicial'
+            -
+              value: '1048576'
+              newvalue: 'La plataforma está desactualizada'
+            -
+              value: '2097152'
+              newvalue: 'La actualización de la plataforma está en progreso.'
+            -
+              value: '4194304'
+              newvalue: 'La plataforma está a punto de quedar obsoleta'
+            -
+              value: '8388608'
+              newvalue: 'El fin de vida de la firma o plataforma ya pasó o es inminente'
+            -
+              value: '16777216'
+              newvalue: 'Las firmas de Windows SMode aún están en uso en instalaciones qu'

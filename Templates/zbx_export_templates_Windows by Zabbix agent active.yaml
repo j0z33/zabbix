@@ -1,0 +1,2187 @@
+zabbix_export:
+  version: '6.0'
+  date: '2024-01-19T08:23:34Z'
+  groups:
+    -
+      uuid: 846977d1dfed4968bc5f8bdb363285bc
+      name: 'Templates/Operating systems'
+  templates:
+    -
+      uuid: a74ca83fc71c4263b89dbb995c02e901
+      template: 'Extra - Windows by Zabbix agent active'
+      name: 'Extra - Windows by Zabbix agent active'
+      description: |
+        Official Windows template. Requires agent of Zabbix 4.4 and newer.
+        
+        
+        You can discuss this template or leave feedback on our forum https://www.zabbix.com/forum/zabbix-suggestions-and-feedback/387224-discussion-thread-for-official-zabbix-template-for-windows
+        
+        Template tooling version used: 0.41
+      groups:
+        -
+          name: 'Templates/Operating systems'
+      items:
+        -
+          uuid: db4460e2d225444b97bc3e101ae8dc7a
+          name: 'Host name of Zabbix agent running'
+          type: ZABBIX_ACTIVE
+          key: agent.hostname
+          delay: 1h
+          history: 7d
+          trends: '0'
+          value_type: CHAR
+          preprocessing:
+            -
+              type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            -
+              tag: component
+              value: system
+        -
+          uuid: e855762308fe4daeabf64edf0181dd79
+          name: 'Zabbix agent ping'
+          type: ZABBIX_ACTIVE
+          key: agent.ping
+          history: 7d
+          description: 'The agent always returns 1 for this item. It could be used in combination with nodata() for availability check.'
+          valuemap:
+            name: 'Zabbix agent ping status'
+          tags:
+            -
+              tag: component
+              value: system
+          triggers:
+            -
+              uuid: 25fcfda4c1e54d0198b32c30cfd4cce9
+              expression: 'nodata(/Extra - Windows by Zabbix agent active/agent.ping,{$AGENT.NODATA_TIMEOUT})=1'
+              name: 'Zabbix agent is not available'
+              event_name: 'Zabbix agent is not available (or nodata for {$AGENT.NODATA_TIMEOUT})'
+              priority: AVERAGE
+              description: 'For active agents, nodata() with agent.ping is used with {$AGENT.NODATA_TIMEOUT} as time threshold.'
+              manual_close: 'YES'
+              tags:
+                -
+                  tag: scope
+                  value: availability
+        -
+          uuid: 4ed43574f5504265a0fa9897d8f513e3
+          name: 'Version of Zabbix agent running'
+          type: ZABBIX_ACTIVE
+          key: agent.version
+          delay: 1h
+          history: 7d
+          trends: '0'
+          value_type: CHAR
+          preprocessing:
+            -
+              type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            -
+              tag: component
+              value: application
+        -
+          uuid: e025ead6c9ac4954bed9fede2a05389d
+          name: 'Cache bytes'
+          type: ZABBIX_ACTIVE
+          key: 'perf_counter_en["\Memory\Cache Bytes"]'
+          delay: 5m
+          history: 7d
+          units: B
+          description: |
+            Cache Bytes is the sum of the Memory\\System Cache Resident Bytes, Memory\\System Driver Resident Bytes,
+            Memory\\System Code Resident Bytes, and Memory\\Pool Paged Resident Bytes counters. This counter displays
+            the last observed value only; it is not an average.
+          tags:
+            -
+              tag: component
+              value: memory
+        -
+          uuid: 80c7fa4140364c05bf8bff909b9c5d18
+          name: 'Free system page table entries'
+          type: ZABBIX_ACTIVE
+          key: 'perf_counter_en["\Memory\Free System Page Table Entries"]'
+          delay: 5m
+          history: 7d
+          description: |
+            This indicates the number of page table entries not currently in use by the system. If the number is less
+            than 5,000, there may well be a memory leak or you running out of memory.
+          tags:
+            -
+              tag: component
+              value: memory
+          triggers:
+            -
+              uuid: cde1dc2717b548b583ab25b1690f03eb
+              expression: 'max(/Extra - Windows by Zabbix agent active/perf_counter_en["\Memory\Free System Page Table Entries"],5m)<{$MEM.PAGE_TABLE_CRIT.MIN}'
+              name: 'Number of free system page table entries is too low'
+              event_name: 'Number of free system page table entries is too low (less {$MEM.PAGE_TABLE_CRIT.MIN} for 5m)'
+              priority: WARNING
+              description: 'The Memory Free System Page Table Entries is less than {$MEM.PAGE_TABLE_CRIT.MIN} for 5 minutes. If the number is less than 5,000, there may well be a memory leak.'
+              dependencies:
+                -
+                  name: 'High memory utilization'
+                  expression: 'min(/Extra - Windows by Zabbix agent active/vm.memory.util,5m)>{$MEMORY.UTIL.MAX}'
+              tags:
+                -
+                  tag: scope
+                  value: capacity
+        -
+          uuid: 77f12f706bd54a32bef6382d6add9cb6
+          name: 'Memory page faults per second'
+          type: ZABBIX_ACTIVE
+          key: 'perf_counter_en["\Memory\Page Faults/sec"]'
+          delay: 5m
+          history: 7d
+          value_type: FLOAT
+          description: |
+            Page Faults/sec is the average number of pages faulted per second. It is measured in number of pages
+            faulted per second because only one page is faulted in each fault operation, hence this is also equal
+            to the number of page fault operations. This counter includes both hard faults (those that require
+            disk access) and soft faults (where the faulted page is found elsewhere in physical memory.) Most
+            processors can handle large numbers of soft faults without significant consequence. However, hard faults,
+            which require disk access, can cause significant delays.
+          tags:
+            -
+              tag: component
+              value: memory
+        -
+          uuid: 3779ef342f97486d8a9ef3a88d8f5aca
+          name: 'Memory pages per second'
+          type: ZABBIX_ACTIVE
+          key: 'perf_counter_en["\Memory\Pages/sec"]'
+          delay: 5m
+          history: 7d
+          value_type: FLOAT
+          description: |
+            This measures the rate at which pages are read from or written to disk to resolve hard page faults.
+            If the value is greater than 1,000, as a result of excessive paging, there may be a memory leak.
+          tags:
+            -
+              tag: component
+              value: memory
+          triggers:
+            -
+              uuid: 0a559ce16f744bb78b4464f7539dad5f
+              expression: 'min(/Extra - Windows by Zabbix agent active/perf_counter_en["\Memory\Pages/sec"],5m)>{$MEM.PAGE_SEC.CRIT.MAX}'
+              name: 'The Memory Pages/sec is too high'
+              event_name: 'The Memory Pages/sec is too high (over {$MEM.PAGE_SEC.CRIT.MAX} for 5m)'
+              priority: WARNING
+              description: 'The Memory Pages/sec in the last 5 minutes exceeds {$MEM.PAGE_SEC.CRIT.MAX}. If the value is greater than 1,000, as a result of excessive paging, there may be a memory leak.'
+              dependencies:
+                -
+                  name: 'High memory utilization'
+                  expression: 'min(/Extra - Windows by Zabbix agent active/vm.memory.util,5m)>{$MEMORY.UTIL.MAX}'
+              tags:
+                -
+                  tag: scope
+                  value: capacity
+        -
+          uuid: b289c7049ac94dc593da78b063c7108f
+          name: 'Memory pool non-paged'
+          type: ZABBIX_ACTIVE
+          key: 'perf_counter_en["\Memory\Pool Nonpaged Bytes"]'
+          delay: 5m
+          history: 7d
+          units: B
+          description: |
+            This measures the size, in bytes, of the non-paged pool. This is an area of system memory for objects
+            that cannot be written to disk but instead must remain in physical memory as long as they are allocated.
+            There is a possible memory leak if the value is greater than 175MB (or 100MB with the /3GB switch).
+            A typical Event ID 2019 is recorded in the system event log.
+          tags:
+            -
+              tag: component
+              value: memory
+        -
+          uuid: 6978deaa5286455ab1373f3a28fd00b5
+          name: 'Used swap space in %'
+          type: ZABBIX_ACTIVE
+          key: 'perf_counter_en["\Paging file(_Total)\% Usage"]'
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          description: 'The used space of swap volume/file in percent.'
+          tags:
+            -
+              tag: component
+              value: memory
+            -
+              tag: component
+              value: storage
+        -
+          uuid: 50ec7bd3d4ff4908b7c2597c6d01438f
+          name: 'CPU DPC time'
+          type: ZABBIX_ACTIVE
+          key: 'perf_counter_en["\Processor Information(_total)\% DPC Time"]'
+          delay: 5m
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          description: |
+            Processor DPC time is the time that a single processor spent receiving and servicing deferred procedure
+            calls (DPCs). DPCs are interrupts that run at a lower priority than standard interrupts. % DPC Time is a
+            component of % Privileged Time because DPCs are executed in privileged mode. If a high % DPC Time is
+            sustained, there may be a processor bottleneck or an application or hardware related issue that can
+            significantly diminish overall system performance.
+          tags:
+            -
+              tag: component
+              value: cpu
+        -
+          uuid: 35bca89e4d8945bda71fbfd35c6b3a12
+          name: 'CPU interrupt time'
+          type: ZABBIX_ACTIVE
+          key: 'perf_counter_en["\Processor Information(_total)\% Interrupt Time"]'
+          delay: 5m
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          description: |
+            The Processor Information\% Interrupt Time is the time the processor spends receiving and servicing
+            hardware interrupts during sample intervals. This value is an indirect indicator of the activity of
+            devices that generate interrupts, such as the system clock, the mouse, disk drivers, data communication
+            lines, network interface cards and other peripheral devices. This is an easy way to identify a potential
+            hardware failure. This should never be higher than 20%.
+          tags:
+            -
+              tag: component
+              value: cpu
+          triggers:
+            -
+              uuid: e3bbd78eac33461098602904f81b3346
+              expression: 'min(/Extra - Windows by Zabbix agent active/perf_counter_en["\Processor Information(_total)\% Interrupt Time"],5m)>{$CPU.INTERRUPT.CRIT.MAX}'
+              name: 'CPU interrupt time is too high'
+              event_name: 'CPU interrupt time is too high (over {$CPU.INTERRUPT.CRIT.MAX}% for 5m)'
+              priority: WARNING
+              description: |
+                "The CPU Interrupt Time in the last 5 minutes exceeds {$CPU.INTERRUPT.CRIT.MAX}%."
+                The Processor Information\% Interrupt Time is the time the processor spends receiving and servicing
+                hardware interrupts during sample intervals. This value is an indirect indicator of the activity of
+                devices that generate interrupts, such as the system clock, the mouse, disk drivers, data communication
+                lines, network interface cards and other peripheral devices. This is an easy way to identify a potential
+                hardware failure. This should never be higher than 20%.
+              dependencies:
+                -
+                  name: 'High CPU utilization'
+                  expression: 'min(/Extra - Windows by Zabbix agent active/system.cpu.util,5m)>{$CPU.UTIL.CRIT}'
+              tags:
+                -
+                  tag: scope
+                  value: performance
+        -
+          uuid: 89b70d8b930542c49edb151d48e934a1
+          name: 'CPU privileged time'
+          type: ZABBIX_ACTIVE
+          key: 'perf_counter_en["\Processor Information(_total)\% Privileged Time"]'
+          delay: 5m
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          description: |
+            The Processor Information\% Privileged Time counter shows the percent of time that the processor is spent
+            executing in Kernel (or Privileged) mode. Privileged mode includes services interrupts inside Interrupt
+            Service Routines (ISRs), executing Deferred Procedure Calls (DPCs), Device Driver calls and other kernel-mode
+            functions of the Windows® Operating System.
+          tags:
+            -
+              tag: component
+              value: cpu
+          triggers:
+            -
+              uuid: 01f571a1e01842b18711536895367118
+              expression: 'min(/Extra - Windows by Zabbix agent active/perf_counter_en["\Processor Information(_total)\% Privileged Time"],5m)>{$CPU.PRIV.CRIT.MAX}'
+              name: 'CPU privileged time is too high'
+              event_name: 'CPU privileged time is too high (over {$CPU.PRIV.CRIT.MAX}% for 5m)'
+              priority: WARNING
+              description: 'The CPU privileged time in the last 5 minutes exceeds {$CPU.PRIV.CRIT.MAX}%.'
+              dependencies:
+                -
+                  name: 'CPU interrupt time is too high'
+                  expression: 'min(/Extra - Windows by Zabbix agent active/perf_counter_en["\Processor Information(_total)\% Interrupt Time"],5m)>{$CPU.INTERRUPT.CRIT.MAX}'
+                -
+                  name: 'High CPU utilization'
+                  expression: 'min(/Extra - Windows by Zabbix agent active/system.cpu.util,5m)>{$CPU.UTIL.CRIT}'
+              tags:
+                -
+                  tag: scope
+                  value: performance
+        -
+          uuid: 782eef0cd72c4d87a895868446588da9
+          name: 'CPU user time'
+          type: ZABBIX_ACTIVE
+          key: 'perf_counter_en["\Processor Information(_total)\% User Time"]'
+          delay: 5m
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          description: |
+            The Processor Information\% User Time counter shows the percent of time that the processor(s) is spent executing
+            in User mode.
+          tags:
+            -
+              tag: component
+              value: cpu
+        -
+          uuid: 29abad406b78477eb89df11c03038a1b
+          name: 'Context switches per second'
+          type: ZABBIX_ACTIVE
+          key: 'perf_counter_en["\System\Context Switches/sec"]'
+          delay: 5m
+          history: 7d
+          value_type: FLOAT
+          description: |
+            Context Switches/sec is the combined rate at which all processors on the computer are switched from one thread to another.
+            Context switches occur when a running thread voluntarily relinquishes the processor, is preempted by a higher priority ready thread, or switches between user-mode and privileged (kernel) mode to use an Executive or subsystem service.
+            It is the sum of Thread\\Context Switches/sec for all threads running on all processors in the computer and is measured in numbers of switches.
+            There are context switch counters on the System and Thread objects. This counter displays the difference between the values observed in the last two samples, divided by the duration of the sample interval.
+          tags:
+            -
+              tag: component
+              value: cpu
+        -
+          uuid: 7d6f02c68217465d92f4c14a2df32f52
+          name: 'CPU queue length'
+          type: ZABBIX_ACTIVE
+          key: 'perf_counter_en["\System\Processor Queue Length"]'
+          delay: 5m
+          history: 7d
+          value_type: FLOAT
+          description: |
+            The Processor Queue Length shows the number of threads that are observed as delayed in the processor Ready Queue
+            and are waiting to be executed.
+          tags:
+            -
+              tag: component
+              value: cpu
+        -
+          uuid: 81b7f5a338074dccbd0476e3e2efe301
+          name: 'Number of threads'
+          type: ZABBIX_ACTIVE
+          key: 'perf_counter_en["\System\Threads"]'
+          delay: 5m
+          history: 7d
+          description: 'The number of threads used by all running processes.'
+          tags:
+            -
+              tag: component
+              value: os
+        -
+          uuid: ed937991d0ef45999746b6acbbbc7ff3
+          name: 'Number of processes'
+          type: ZABBIX_ACTIVE
+          key: 'proc.num[]'
+          delay: 5m
+          history: 7d
+          description: 'The number of processes.'
+          tags:
+            -
+              tag: component
+              value: os
+        -
+          uuid: fd4c9d72859f419899d7f5b97e150682
+          name: 'CPU utilization'
+          type: ZABBIX_ACTIVE
+          key: system.cpu.util
+          delay: 5m
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          description: 'CPU utilization in %.'
+          tags:
+            -
+              tag: component
+              value: cpu
+          triggers:
+            -
+              uuid: 0b6713cf82384f31873102fb85ac231c
+              expression: 'min(/Extra - Windows by Zabbix agent active/system.cpu.util,5m)>{$CPU.UTIL.CRIT}'
+              name: 'High CPU utilization'
+              event_name: 'High CPU utilization (over {$CPU.UTIL.CRIT}% for 5m)'
+              opdata: 'Current utilization: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              description: 'CPU utilization is too high. The system might be slow to respond.'
+              tags:
+                -
+                  tag: scope
+                  value: performance
+        -
+          uuid: 02bb2bd8820f47da9290e4adb7257775
+          name: 'System name'
+          type: ZABBIX_ACTIVE
+          key: system.hostname
+          delay: 1h
+          history: 2w
+          trends: '0'
+          value_type: CHAR
+          description: 'System host name.'
+          inventory_link: NAME
+          preprocessing:
+            -
+              type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            -
+              tag: component
+              value: system
+          triggers:
+            -
+              uuid: 96b5efae47b54a9896d6294195ea307a
+              expression: 'last(/Extra - Windows by Zabbix agent active/system.hostname,#1)<>last(/Extra - Windows by Zabbix agent active/system.hostname,#2) and length(last(/Extra - Windows by Zabbix agent active/system.hostname))>0'
+              name: 'System name has changed'
+              event_name: 'System name has changed (new name: {ITEM.VALUE})'
+              priority: INFO
+              description: 'System name has changed. Ack to close.'
+              manual_close: 'YES'
+              tags:
+                -
+                  tag: scope
+                  value: notice
+        -
+          uuid: c4b360adda5d4fa297cb6a5ae4cb065d
+          name: 'System local time'
+          type: ZABBIX_ACTIVE
+          key: system.localtime
+          history: 7d
+          units: unixtime
+          description: 'System local time of the host.'
+          tags:
+            -
+              tag: component
+              value: system
+          triggers:
+            -
+              uuid: 3bb61d6924fa4ea785f01e01f962af98
+              expression: 'fuzzytime(/Extra - Windows by Zabbix agent active/system.localtime,{$SYSTEM.FUZZYTIME.MAX})=0'
+              name: 'System time is out of syn'
+              event_name: 'System time is out of sync (diff with Zabbix server > {$SYSTEM.FUZZYTIME.MAX}s)'
+              priority: WARNING
+              description: 'The host system time is different from the Zabbix server time.'
+              manual_close: 'YES'
+              tags:
+                -
+                  tag: scope
+                  value: notice
+        -
+          uuid: e351f898ea704571b6d3c6c6841a9b02
+          name: 'Operating system architecture'
+          type: ZABBIX_ACTIVE
+          key: system.sw.arch
+          delay: 1h
+          history: 2w
+          trends: '0'
+          value_type: CHAR
+          description: 'Operating system architecture of the host.'
+          preprocessing:
+            -
+              type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            -
+              tag: component
+              value: os
+        -
+          uuid: bbb1031b871a4a69aab287cd31237dd0
+          name: 'Free swap space'
+          type: CALCULATED
+          key: system.swap.free
+          delay: 5m
+          history: 7d
+          units: B
+          params: 'last(//system.swap.size[,total]) - last(//system.swap.size[,total]) / 100 * last(//perf_counter_en["\Paging file(_Total)\% Usage"])'
+          description: 'The free space of swap volume/file in bytes.'
+          tags:
+            -
+              tag: component
+              value: memory
+            -
+              tag: component
+              value: storage
+        -
+          uuid: 3070c3c6863f4872a2cb90415376483d
+          name: 'Free swap space in %'
+          type: DEPENDENT
+          key: system.swap.pfree
+          delay: '0'
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          description: 'The free space of swap volume/file in percent.'
+          preprocessing:
+            -
+              type: JAVASCRIPT
+              parameters:
+                - 'return (100 - value)'
+          master_item:
+            key: 'perf_counter_en["\Paging file(_Total)\% Usage"]'
+          tags:
+            -
+              tag: component
+              value: memory
+            -
+              tag: component
+              value: storage
+        -
+          uuid: ead9ce85c117474aaaaf6a4255810eb9
+          name: 'Total swap space'
+          type: ZABBIX_ACTIVE
+          key: 'system.swap.size[,total]'
+          history: 7d
+          units: B
+          description: 'The total space of swap volume/file in bytes.'
+          tags:
+            -
+              tag: component
+              value: memory
+            -
+              tag: component
+              value: storage
+        -
+          uuid: 089883f9ffeb4d87984e602c7bf607ee
+          name: 'System description'
+          type: ZABBIX_ACTIVE
+          key: system.uname
+          delay: 15m
+          history: 2w
+          trends: '0'
+          value_type: CHAR
+          description: 'System description of the host.'
+          preprocessing:
+            -
+              type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            -
+              tag: component
+              value: system
+        -
+          uuid: 8a0c28d03b5b4f338cf3d39d026d571d
+          name: Uptime
+          type: ZABBIX_ACTIVE
+          key: system.uptime
+          delay: 30s
+          history: 2w
+          trends: 0d
+          units: uptime
+          description: 'System uptime in ''N days, hh:mm:ss'' format.'
+          tags:
+            -
+              tag: component
+              value: system
+          triggers:
+            -
+              uuid: f0b52c472df7450c9a73a053fe5d54e3
+              expression: 'last(/Extra - Windows by Zabbix agent active/system.uptime)<10m'
+              name: 'Host has been restarted'
+              event_name: 'Host has been restarted (uptime < 10m)'
+              priority: WARNING
+              description: 'The device uptime is less than 10 minutes.'
+              manual_close: 'YES'
+              tags:
+                -
+                  tag: scope
+                  value: notice
+        -
+          uuid: b73758c631bf4b279c05cdf488eab0ed
+          name: 'Total memory'
+          type: ZABBIX_ACTIVE
+          key: 'vm.memory.size[total]'
+          history: 7d
+          units: B
+          description: 'Total memory in Bytes.'
+          tags:
+            -
+              tag: component
+              value: memory
+        -
+          uuid: 403bea03affb4c1e9d0e6ec3ab47c5fd
+          name: 'Used memory'
+          type: ZABBIX_ACTIVE
+          key: 'vm.memory.size[used]'
+          history: 7d
+          units: B
+          description: 'Used memory in Bytes.'
+          tags:
+            -
+              tag: component
+              value: memory
+        -
+          uuid: b3a5b83583404e9887176d1024cb2dd1
+          name: 'Memory utilization'
+          type: CALCULATED
+          key: vm.memory.util
+          delay: 5m
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          params: 'last(//vm.memory.size[used]) / last(//vm.memory.size[total]) * 100'
+          description: 'Memory utilization in %.'
+          tags:
+            -
+              tag: component
+              value: memory
+          triggers:
+            -
+              uuid: 6d6a8425ab434dbdae788551a65e5069
+              expression: 'min(/Extra - Windows by Zabbix agent active/vm.memory.util,5m)>{$MEMORY.UTIL.MAX}'
+              name: 'High memory utilization'
+              event_name: 'High memory utilization (>{$MEMORY.UTIL.MAX}% for 5m)'
+              priority: AVERAGE
+              description: 'The system is running out of free memory.'
+              tags:
+                -
+                  tag: scope
+                  value: capacity
+                -
+                  tag: scope
+                  value: performance
+        -
+          uuid: e086a9d0543c459f9601817c0b1341bb
+          name: 'Network interfaces WMI get'
+          type: ZABBIX_ACTIVE
+          key: 'wmi.getall[root\cimv2,"select Name,Description,NetConnectionID,Speed,AdapterTypeId,NetConnectionStatus,GUID from win32_networkadapter where PhysicalAdapter=True and NetConnectionStatus>0"]'
+          delay: 5m
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+          description: 'Raw data of win32_networkadapter.'
+          preprocessing:
+            -
+              type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+          tags:
+            -
+              tag: component
+              value: raw
+        -
+          uuid: 888429cd16c647bbaed717a5f48eb9dc
+          name: 'Number of cores'
+          type: ZABBIX_ACTIVE
+          key: 'wmi.get[root/cimv2,"Select NumberOfLogicalProcessors from Win32_ComputerSystem"]'
+          delay: 5m
+          history: 7d
+          description: 'The number of logical processors available on the computer.'
+          tags:
+            -
+              tag: component
+              value: cpu
+      discovery_rules:
+        -
+          uuid: 8a5f8740f860404ab899a1f3d72e9f56
+          name: 'Network interfaces discovery'
+          type: DEPENDENT
+          key: net.if.discovery
+          delay: '0'
+          filter:
+            evaltype: AND
+            conditions:
+              -
+                macro: '{#IFNAME}'
+                value: '{$NET.IF.IFNAME.MATCHES}'
+                formulaid: E
+              -
+                macro: '{#IFNAME}'
+                value: '{$NET.IF.IFNAME.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: F
+              -
+                macro: '{#IFDESCR}'
+                value: '{$NET.IF.IFDESCR.MATCHES}'
+                formulaid: C
+              -
+                macro: '{#IFDESCR}'
+                value: '{$NET.IF.IFDESCR.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: D
+              -
+                macro: '{#IFALIAS}'
+                value: '{$NET.IF.IFALIAS.MATCHES}'
+                formulaid: A
+              -
+                macro: '{#IFALIAS}'
+                value: '{$NET.IF.IFALIAS.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: B
+          description: 'Discovery of installed network interfaces.'
+          item_prototypes:
+            -
+              uuid: 4a763954bf8f4feca7b7e9400799a89d
+              name: 'Interface {#IFNAME}({#IFALIAS}): Inbound packets discarded'
+              type: ZABBIX_ACTIVE
+              key: 'net.if.in["{#IFGUID}",dropped]'
+              delay: 3m
+              history: 7d
+              description: 'The number of incoming packets dropped on the network interface.'
+              preprocessing:
+                -
+                  type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              tags:
+                -
+                  tag: component
+                  value: network
+                -
+                  tag: description
+                  value: '{#IFALIAS}'
+                -
+                  tag: interface
+                  value: '{#IFNAME}'
+            -
+              uuid: 9e47dec6dfb246eba5047205693075b8
+              name: 'Interface {#IFNAME}({#IFALIAS}): Inbound packets with errors'
+              type: ZABBIX_ACTIVE
+              key: 'net.if.in["{#IFGUID}",errors]'
+              delay: 3m
+              history: 7d
+              description: 'The number of incoming packets with errors on the network interface.'
+              preprocessing:
+                -
+                  type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              tags:
+                -
+                  tag: component
+                  value: network
+                -
+                  tag: description
+                  value: '{#IFALIAS}'
+                -
+                  tag: interface
+                  value: '{#IFNAME}'
+            -
+              uuid: 4c72a0b2bf79442dbc9cb83bb1452737
+              name: 'Interface {#IFNAME}({#IFALIAS}): Bits received'
+              type: ZABBIX_ACTIVE
+              key: 'net.if.in["{#IFGUID}"]'
+              delay: 3m
+              history: 7d
+              units: bps
+              description: 'Incoming traffic on the network interface.'
+              preprocessing:
+                -
+                  type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                -
+                  type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                -
+                  tag: component
+                  value: network
+                -
+                  tag: description
+                  value: '{#IFALIAS}'
+                -
+                  tag: interface
+                  value: '{#IFNAME}'
+            -
+              uuid: 2be330e3ee264a06a064b85a2d4d1b24
+              name: 'Interface {#IFNAME}({#IFALIAS}): Outbound packets discarded'
+              type: ZABBIX_ACTIVE
+              key: 'net.if.out["{#IFGUID}",dropped]'
+              delay: 3m
+              history: 7d
+              description: 'The number of outgoing packets dropped on the network interface.'
+              preprocessing:
+                -
+                  type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              tags:
+                -
+                  tag: component
+                  value: network
+                -
+                  tag: description
+                  value: '{#IFALIAS}'
+                -
+                  tag: interface
+                  value: '{#IFNAME}'
+            -
+              uuid: f3983c50e3d1422a9cab7fb5baee85e2
+              name: 'Interface {#IFNAME}({#IFALIAS}): Outbound packets with errors'
+              type: ZABBIX_ACTIVE
+              key: 'net.if.out["{#IFGUID}",errors]'
+              delay: 3m
+              history: 7d
+              description: 'The number of outgoing packets with errors on the network interface.'
+              preprocessing:
+                -
+                  type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              tags:
+                -
+                  tag: component
+                  value: network
+                -
+                  tag: description
+                  value: '{#IFALIAS}'
+                -
+                  tag: interface
+                  value: '{#IFNAME}'
+            -
+              uuid: ba1169a7273e4092a4ec4dd7c8aafcb7
+              name: 'Interface {#IFNAME}({#IFALIAS}): Bits sent'
+              type: ZABBIX_ACTIVE
+              key: 'net.if.out["{#IFGUID}"]'
+              delay: 3m
+              history: 7d
+              units: bps
+              description: 'Outgoing traffic on the network interface.'
+              preprocessing:
+                -
+                  type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                -
+                  type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                -
+                  tag: component
+                  value: network
+                -
+                  tag: description
+                  value: '{#IFALIAS}'
+                -
+                  tag: interface
+                  value: '{#IFNAME}'
+            -
+              uuid: a1ad941d8f0c4532bec4146b18ecd61c
+              name: 'Interface {#IFNAME}({#IFALIAS}): Speed'
+              type: DEPENDENT
+              key: 'net.if.speed["{#IFGUID}"]'
+              delay: '0'
+              history: 7d
+              trends: 0d
+              units: bps
+              description: 'Estimated bandwidth of the network interface if any.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$[?(@.GUID == "{#IFGUID}")].Speed.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+                -
+                  type: JAVASCRIPT
+                  parameters:
+                    - 'return (value==''9223372036854775807'' ? 0 : value)'
+                -
+                  type: DISCARD_UNCHANGED_HEARTBEAT
+                  parameters:
+                    - 1h
+              master_item:
+                key: 'wmi.getall[root\cimv2,"select Name,Description,NetConnectionID,Speed,AdapterTypeId,NetConnectionStatus,GUID from win32_networkadapter where PhysicalAdapter=True and NetConnectionStatus>0"]'
+              tags:
+                -
+                  tag: component
+                  value: network
+                -
+                  tag: description
+                  value: '{#IFALIAS}'
+                -
+                  tag: interface
+                  value: '{#IFNAME}'
+            -
+              uuid: 4689812e4f6e40de8d37672c5118fb7d
+              name: 'Interface {#IFNAME}({#IFALIAS}): Operational status'
+              type: DEPENDENT
+              key: 'net.if.status["{#IFGUID}"]'
+              delay: '0'
+              history: 7d
+              trends: '0'
+              description: 'The operational status of the network interface.'
+              valuemap:
+                name: 'Win32_NetworkAdapter::NetConnectionStatus'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$[?(@.GUID == "{#IFGUID}")].NetConnectionStatus.first()'
+                -
+                  type: DISCARD_UNCHANGED_HEARTBEAT
+                  parameters:
+                    - 1d
+              master_item:
+                key: 'wmi.getall[root\cimv2,"select Name,Description,NetConnectionID,Speed,AdapterTypeId,NetConnectionStatus,GUID from win32_networkadapter where PhysicalAdapter=True and NetConnectionStatus>0"]'
+              tags:
+                -
+                  tag: component
+                  value: network
+                -
+                  tag: description
+                  value: '{#IFALIAS}'
+                -
+                  tag: interface
+                  value: '{#IFNAME}'
+              trigger_prototypes:
+                -
+                  uuid: 735dd0d1960c4261960580589fa76b26
+                  expression: '{$IFCONTROL:"{#IFNAME}"}=1 and last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"])<>2 and (last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"],#1)<>last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"],#2))'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"])=2 or {$IFCONTROL:"{#IFNAME}"}=0'
+                  name: 'Interface {#IFNAME}({#IFALIAS}): Link down'
+                  opdata: 'Current state: {ITEM.LASTVALUE1}'
+                  priority: AVERAGE
+                  description: |
+                    This trigger expression works as follows:
+                    1. Can be triggered if operations status is down.
+                    2. {$IFCONTROL:\"{#IFNAME}\"}=1 - user can redefine Context macro to value - 0. That marks this interface as not important.
+                        No new trigger will be fired if this interface is down.
+                    3. {TEMPLATE_NAME:METRIC.diff()}=1) - trigger fires only if operational status is different from Connected(2).
+                    
+                    WARNING: if closed manually - won't fire again on next poll, because of .diff.
+                  tags:
+                    -
+                      tag: scope
+                      value: availability
+            -
+              uuid: 955c40aeccf74f2db592d60a28436519
+              name: 'Interface {#IFNAME}({#IFALIAS}): Interface type'
+              type: DEPENDENT
+              key: 'net.if.type["{#IFGUID}"]'
+              delay: '0'
+              history: 7d
+              trends: 0d
+              description: 'The type of the network interface.'
+              valuemap:
+                name: 'Win32_NetworkAdapter::AdapterTypeId'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$[?(@.GUID == "{#IFGUID}")].AdapterTypeId.first()'
+                -
+                  type: DISCARD_UNCHANGED_HEARTBEAT
+                  parameters:
+                    - 1d
+              master_item:
+                key: 'wmi.getall[root\cimv2,"select Name,Description,NetConnectionID,Speed,AdapterTypeId,NetConnectionStatus,GUID from win32_networkadapter where PhysicalAdapter=True and NetConnectionStatus>0"]'
+              tags:
+                -
+                  tag: component
+                  value: network
+                -
+                  tag: description
+                  value: '{#IFALIAS}'
+                -
+                  tag: interface
+                  value: '{#IFNAME}'
+          trigger_prototypes:
+            -
+              uuid: 9e69d743275e4df2908297608391e674
+              expression: |
+                change(/Extra - Windows by Zabbix agent active/net.if.speed["{#IFGUID}"])<0 and
+                last(/Extra - Windows by Zabbix agent active/net.if.speed["{#IFGUID}"])>0 and
+                last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"])=2
+              name: 'Interface {#IFNAME}({#IFALIAS}): Ethernet has changed to lower speed than it was before'
+              opdata: 'Current reported speed: {ITEM.LASTVALUE1}'
+              priority: INFO
+              description: 'This Ethernet connection has transitioned down from its known maximum speed. This might be a sign of autonegotiation issues. Ack to close.'
+              dependencies:
+                -
+                  name: 'Interface {#IFNAME}({#IFALIAS}): Link down'
+                  expression: '{$IFCONTROL:"{#IFNAME}"}=1 and last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"])<>2 and (last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"],#1)<>last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"],#2))'
+                  recovery_expression: 'last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"])=2 or {$IFCONTROL:"{#IFNAME}"}=0'
+              tags:
+                -
+                  tag: scope
+                  value: capacity
+            -
+              uuid: 46994775f4f94ce6b80b4034c95b6aa4
+              expression: |
+                (avg(/Extra - Windows by Zabbix agent active/net.if.in["{#IFGUID}"],15m)>({$IF.UTIL.MAX:"{#IFNAME}"}/100)*last(/Extra - Windows by Zabbix agent active/net.if.speed["{#IFGUID}"]) or
+                avg(/Extra - Windows by Zabbix agent active/net.if.out["{#IFGUID}"],15m)>({$IF.UTIL.MAX:"{#IFNAME}"}/100)*last(/Extra - Windows by Zabbix agent active/net.if.speed["{#IFGUID}"])) and
+                last(/Extra - Windows by Zabbix agent active/net.if.speed["{#IFGUID}"])>0
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: |
+                avg(/Extra - Windows by Zabbix agent active/net.if.in["{#IFGUID}"],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/Extra - Windows by Zabbix agent active/net.if.speed["{#IFGUID}"]) and
+                avg(/Extra - Windows by Zabbix agent active/net.if.out["{#IFGUID}"],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/Extra - Windows by Zabbix agent active/net.if.speed["{#IFGUID}"])
+              name: 'Interface {#IFNAME}({#IFALIAS}): High bandwidth usage'
+              event_name: 'Interface {#IFNAME}({#IFALIAS}): High bandwidth usage (>{$IF.UTIL.MAX:"{#IFNAME}"}%)'
+              opdata: 'In: {ITEM.LASTVALUE1}, out: {ITEM.LASTVALUE3}, speed: {ITEM.LASTVALUE2}'
+              priority: WARNING
+              description: 'The network interface utilization is close to its estimated maximum bandwidth.'
+              dependencies:
+                -
+                  name: 'Interface {#IFNAME}({#IFALIAS}): Link down'
+                  expression: '{$IFCONTROL:"{#IFNAME}"}=1 and last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"])<>2 and (last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"],#1)<>last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"],#2))'
+                  recovery_expression: 'last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"])=2 or {$IFCONTROL:"{#IFNAME}"}=0'
+              tags:
+                -
+                  tag: scope
+                  value: performance
+            -
+              uuid: 64455d70a60547688b23ebff3bb662a7
+              expression: |
+                min(/Extra - Windows by Zabbix agent active/net.if.in["{#IFGUID}",errors],5m)>{$IF.ERRORS.WARN:"{#IFNAME}"}
+                or min(/Extra - Windows by Zabbix agent active/net.if.out["{#IFGUID}",errors],5m)>{$IF.ERRORS.WARN:"{#IFNAME}"}
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: |
+                max(/Extra - Windows by Zabbix agent active/net.if.in["{#IFGUID}",errors],5m)<{$IF.ERRORS.WARN:"{#IFNAME}"}*0.8
+                and max(/Extra - Windows by Zabbix agent active/net.if.out["{#IFGUID}",errors],5m)<{$IF.ERRORS.WARN:"{#IFNAME}"}*0.8
+              name: 'Interface {#IFNAME}({#IFALIAS}): High error rate'
+              event_name: 'Interface {#IFNAME}({#IFALIAS}): High error rate (>{$IF.ERRORS.WARN:"{#IFNAME}"} for 5m)'
+              opdata: 'errors in: {ITEM.LASTVALUE1}, errors out: {ITEM.LASTVALUE2}'
+              priority: WARNING
+              description: 'Recovers when below 80% of {$IF.ERRORS.WARN:"{#IFNAME}"} threshold'
+              dependencies:
+                -
+                  name: 'Interface {#IFNAME}({#IFALIAS}): Link down'
+                  expression: '{$IFCONTROL:"{#IFNAME}"}=1 and last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"])<>2 and (last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"],#1)<>last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"],#2))'
+                  recovery_expression: 'last(/Extra - Windows by Zabbix agent active/net.if.status["{#IFGUID}"])=2 or {$IFCONTROL:"{#IFNAME}"}=0'
+              tags:
+                -
+                  tag: scope
+                  value: availability
+          graph_prototypes:
+            -
+              uuid: 4dc7a4f2f4ad4c8e802e52d611d63475
+              name: 'Interface {#IFNAME}({#IFALIAS}): Network traffic'
+              graph_items:
+                -
+                  drawtype: GRADIENT_LINE
+                  color: 1A7C11
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'net.if.in["{#IFGUID}"]'
+                -
+                  sortorder: '1'
+                  drawtype: BOLD_LINE
+                  color: 2774A4
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'net.if.out["{#IFGUID}"]'
+                -
+                  sortorder: '2'
+                  color: F63100
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'net.if.out["{#IFGUID}",errors]'
+                -
+                  sortorder: '3'
+                  color: A54F10
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'net.if.in["{#IFGUID}",errors]'
+                -
+                  sortorder: '4'
+                  color: FC6EA3
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'net.if.out["{#IFGUID}",dropped]'
+                -
+                  sortorder: '5'
+                  color: 6C59DC
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'net.if.in["{#IFGUID}",dropped]'
+          master_item:
+            key: 'wmi.getall[root\cimv2,"select Name,Description,NetConnectionID,Speed,AdapterTypeId,NetConnectionStatus,GUID from win32_networkadapter where PhysicalAdapter=True and NetConnectionStatus>0"]'
+          preprocessing:
+            -
+              type: JAVASCRIPT
+              parameters:
+                - |
+                  output = JSON.parse(value).map(function(net){
+                      return {
+                          "{#IFNAME}": net.Name,
+                          "{#IFDESCR}": net.Description,
+                          "{#IFALIAS}": net.NetConnectionID,
+                          "{#IFGUID}": net.GUID
+                      }})
+                  return JSON.stringify({"data": output})
+            -
+              type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+        -
+          uuid: 1d61df55892b4ce886dc36f21549f128
+          name: 'Physical disks discovery'
+          type: ZABBIX_ACTIVE
+          key: 'perf_instance_en.discovery[PhysicalDisk]'
+          delay: 1h
+          filter:
+            evaltype: AND
+            conditions:
+              -
+                macro: '{#DEVNAME}'
+                value: '{$VFS.DEV.DEVNAME.MATCHES}'
+                formulaid: A
+              -
+                macro: '{#DEVNAME}'
+                value: '{$VFS.DEV.DEVNAME.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: B
+          description: 'Discovery of installed physical disks.'
+          item_prototypes:
+            -
+              uuid: 6f91cd104cc7461db5d369cd2be7513a
+              name: '{#DEVNAME}: Disk utilization by idle time'
+              type: ZABBIX_ACTIVE
+              key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\% Idle Time",60]'
+              history: 7d
+              value_type: FLOAT
+              units: '%'
+              description: 'This item is the percentage of elapsed time that the selected disk drive was busy servicing read or writes requests based on idle time.'
+              preprocessing:
+                -
+                  type: JAVASCRIPT
+                  parameters:
+                    - 'return (100 - value)'
+              tags:
+                -
+                  tag: component
+                  value: storage
+                -
+                  tag: disk
+                  value: '{#DEVNAME}'
+              trigger_prototypes:
+                -
+                  uuid: 982b437c04174df1b88f6ad8433f3ba6
+                  expression: 'min(/Extra - Windows by Zabbix agent active/perf_counter_en["\PhysicalDisk({#DEVNAME})\% Idle Time",60],15m)>{$VFS.DEV.UTIL.MAX.WARN}'
+                  name: '{#DEVNAME}: Disk is overloaded'
+                  event_name: '{#DEVNAME}: Disk is overloaded (util > {$VFS.DEV.UTIL.MAX.WARN}% for 15m)'
+                  priority: WARNING
+                  description: 'The disk appears to be under heavy load'
+                  dependencies:
+                    -
+                      name: '{#DEVNAME}: Disk read request responses are too high'
+                      expression: 'min(/Extra - Windows by Zabbix agent active/perf_counter_en["\PhysicalDisk({#DEVNAME})\Avg. Disk sec/Read",60],15m) > {$VFS.DEV.READ.AWAIT.WARN:"{#DEVNAME}"}'
+                    -
+                      name: '{#DEVNAME}: Disk write request responses are too high'
+                      expression: 'min(/Extra - Windows by Zabbix agent active/perf_counter_en["\PhysicalDisk({#DEVNAME})\Avg. Disk sec/Write",60],15m) > {$VFS.DEV.WRITE.AWAIT.WARN:"{#DEVNAME}"}'
+                  tags:
+                    -
+                      tag: scope
+                      value: performance
+            -
+              uuid: 33bf31da199a4c87b534195b56c3aa3a
+              name: '{#DEVNAME}: Average disk read queue length'
+              type: ZABBIX_ACTIVE
+              key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Avg. Disk Read Queue Length",60]'
+              history: 7d
+              value_type: FLOAT
+              description: 'Average disk read queue, the number of requests outstanding on the disk at the time the performance data is collected.'
+              tags:
+                -
+                  tag: component
+                  value: storage
+                -
+                  tag: disk
+                  value: '{#DEVNAME}'
+            -
+              uuid: 31f954aa6ac4451bb068d911337c92c9
+              name: '{#DEVNAME}: Disk read request avg waiting time'
+              type: ZABBIX_ACTIVE
+              key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Avg. Disk sec/Read",60]'
+              history: 7d
+              value_type: FLOAT
+              units: s
+              description: 'The average time for read requests issued to the device to be served. This includes the time spent by the requests in queue and the time spent servicing them.'
+              tags:
+                -
+                  tag: component
+                  value: storage
+                -
+                  tag: disk
+                  value: '{#DEVNAME}'
+              trigger_prototypes:
+                -
+                  uuid: cd9501aaeda24c7e80259cfe3ff5139e
+                  expression: 'min(/Extra - Windows by Zabbix agent active/perf_counter_en["\PhysicalDisk({#DEVNAME})\Avg. Disk sec/Read",60],15m) > {$VFS.DEV.READ.AWAIT.WARN:"{#DEVNAME}"}'
+                  name: '{#DEVNAME}: Disk read request responses are too high'
+                  event_name: '{#DEVNAME}: Disk read request responses are too high (read > {$VFS.DEV.READ.AWAIT.WARN:"{#DEVNAME}"}s for 15m'
+                  priority: WARNING
+                  description: 'This trigger might indicate disk {#DEVNAME} saturation.'
+                  tags:
+                    -
+                      tag: scope
+                      value: performance
+            -
+              uuid: 63ae36a32d8945e3a877a77ca30a4af3
+              name: '{#DEVNAME}: Disk write request avg waiting time'
+              type: ZABBIX_ACTIVE
+              key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Avg. Disk sec/Write",60]'
+              history: 7d
+              value_type: FLOAT
+              units: s
+              description: 'The average time for write requests issued to the device to be served. This includes the time spent by the requests in queue and the time spent servicing them.'
+              tags:
+                -
+                  tag: component
+                  value: storage
+                -
+                  tag: disk
+                  value: '{#DEVNAME}'
+              trigger_prototypes:
+                -
+                  uuid: 7984b6fa848f467dab0903ca8cda8a22
+                  expression: 'min(/Extra - Windows by Zabbix agent active/perf_counter_en["\PhysicalDisk({#DEVNAME})\Avg. Disk sec/Write",60],15m) > {$VFS.DEV.WRITE.AWAIT.WARN:"{#DEVNAME}"}'
+                  name: '{#DEVNAME}: Disk write request responses are too high'
+                  event_name: '{#DEVNAME}: Disk write request responses are too high (write > {$VFS.DEV.WRITE.AWAIT.WARN:"{#DEVNAME}"}s for 15m)'
+                  priority: WARNING
+                  description: 'This trigger might indicate disk {#DEVNAME} saturation.'
+                  tags:
+                    -
+                      tag: scope
+                      value: performance
+            -
+              uuid: a0110b74b6a945b8b8d1d0439ffc5d64
+              name: '{#DEVNAME}: Average disk write queue length'
+              type: ZABBIX_ACTIVE
+              key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Avg. Disk Write Queue Length",60]'
+              history: 7d
+              value_type: FLOAT
+              description: 'Average disk write queue, the number of requests outstanding on the disk at the time the performance data is collected.'
+              tags:
+                -
+                  tag: component
+                  value: storage
+                -
+                  tag: disk
+                  value: '{#DEVNAME}'
+            -
+              uuid: d6ce41fb3f824f3f8722523bc30aaf29
+              name: '{#DEVNAME}: Disk average queue size (avgqu-sz)'
+              type: ZABBIX_ACTIVE
+              key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Current Disk Queue Length",60]'
+              history: 7d
+              value_type: FLOAT
+              description: 'Current average disk queue, the number of requests outstanding on the disk at the time the performance data is collected.'
+              tags:
+                -
+                  tag: component
+                  value: storage
+                -
+                  tag: disk
+                  value: '{#DEVNAME}'
+            -
+              uuid: 672c27ad52f048a5bfce0d345dd35b81
+              name: '{#DEVNAME}: Disk read rate'
+              type: ZABBIX_ACTIVE
+              key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Disk Reads/sec",60]'
+              history: 7d
+              value_type: FLOAT
+              units: '!r/s'
+              description: 'Rate of read operations on the disk.'
+              tags:
+                -
+                  tag: component
+                  value: storage
+                -
+                  tag: disk
+                  value: '{#DEVNAME}'
+            -
+              uuid: ff85757a78fe4fc5a5548f395192ccc6
+              name: '{#DEVNAME}: Disk write rate'
+              type: ZABBIX_ACTIVE
+              key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Disk Writes/sec",60]'
+              history: 7d
+              value_type: FLOAT
+              units: '!w/s'
+              description: 'Rate of write operations on the disk.'
+              tags:
+                -
+                  tag: component
+                  value: storage
+                -
+                  tag: disk
+                  value: '{#DEVNAME}'
+          graph_prototypes:
+            -
+              uuid: e453262ef3f548a4b0b1e1262ce3e068
+              name: '{#DEVNAME}: Disk average queue length'
+              graph_items:
+                -
+                  color: 1A7C11
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Avg. Disk Read Queue Length",60]'
+                -
+                  sortorder: '1'
+                  color: 2774A4
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Avg. Disk Write Queue Length",60]'
+            -
+              uuid: 7cee8b10dbbe4c9a9d763d14cade4638
+              name: '{#DEVNAME}: Disk average waiting time'
+              graph_items:
+                -
+                  color: 1A7C11
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Avg. Disk sec/Read",60]'
+                -
+                  sortorder: '1'
+                  drawtype: GRADIENT_LINE
+                  color: 2774A4
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Avg. Disk sec/Write",60]'
+            -
+              uuid: 12bb70f2476b44c2a832366d0b073a61
+              name: '{#DEVNAME}: Disk read/write rates'
+              graph_items:
+                -
+                  color: 1A7C11
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Disk Reads/sec",60]'
+                -
+                  sortorder: '1'
+                  drawtype: GRADIENT_LINE
+                  color: 2774A4
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Disk Writes/sec",60]'
+            -
+              uuid: e558d32307ce4692ab0d87382bb55911
+              name: '{#DEVNAME}: Disk utilization and queue'
+              graph_items:
+                -
+                  color: 1A7C11
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\Current Disk Queue Length",60]'
+                -
+                  sortorder: '1'
+                  drawtype: GRADIENT_LINE
+                  color: 2774A4
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'perf_counter_en["\PhysicalDisk({#DEVNAME})\% Idle Time",60]'
+          preprocessing:
+            -
+              type: STR_REPLACE
+              parameters:
+                - '{#INSTANCE}'
+                - '{#DEVNAME}'
+        -
+          uuid: 24ea28f2225540e79a7e036106b7d2eb
+          name: 'Windows services discovery'
+          type: ZABBIX_ACTIVE
+          key: service.discovery
+          delay: 1h
+          filter:
+            evaltype: AND
+            conditions:
+              -
+                macro: '{#SERVICE.NAME}'
+                value: '{$SERVICE.NAME.MATCHES}'
+                formulaid: A
+              -
+                macro: '{#SERVICE.NAME}'
+                value: '{$SERVICE.NAME.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: B
+              -
+                macro: '{#SERVICE.STARTUPNAME}'
+                value: '{$SERVICE.STARTUPNAME.MATCHES}'
+                formulaid: C
+              -
+                macro: '{#SERVICE.STARTUPNAME}'
+                value: '{$SERVICE.STARTUPNAME.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: D
+          description: 'Discovery of Windows services of different types as defined in template''s macros.'
+          item_prototypes:
+            -
+              uuid: 0d0b8878528e4255b9720d513bbb47a6
+              name: 'State of service "{#SERVICE.NAME}" ({#SERVICE.DISPLAYNAME})'
+              type: ZABBIX_ACTIVE
+              key: 'service.info["{#SERVICE.NAME}",state]'
+              history: 7d
+              valuemap:
+                name: 'Windows service state'
+              tags:
+                -
+                  tag: component
+                  value: system
+                -
+                  tag: name
+                  value: '{#SERVICE.DISPLAYNAME}'
+                -
+                  tag: service
+                  value: '{#SERVICE.NAME}'
+              trigger_prototypes:
+                -
+                  uuid: 3eecfb76d40e47e2bfeb5bf9bdb5eebf
+                  expression: 'min(/Extra - Windows by Zabbix agent active/service.info["{#SERVICE.NAME}",state],#3)<>0'
+                  name: '"{#SERVICE.NAME}" ({#SERVICE.DISPLAYNAME}) is not running'
+                  event_name: '"{#SERVICE.NAME}" ({#SERVICE.DISPLAYNAME}) is not running (startup type {#SERVICE.STARTUPNAME})'
+                  priority: AVERAGE
+                  description: 'The service has a state other than "Running" for the last three times.'
+                  tags:
+                    -
+                      tag: scope
+                      value: notice
+        -
+          uuid: 3d0e03214e594517bc5306e1ca4c4f06
+          name: 'Mounted filesystem discovery'
+          type: ZABBIX_ACTIVE
+          key: vfs.fs.discovery
+          delay: 1h
+          filter:
+            evaltype: AND
+            conditions:
+              -
+                macro: '{#FSTYPE}'
+                value: '{$VFS.FS.FSTYPE.MATCHES}'
+                formulaid: E
+              -
+                macro: '{#FSTYPE}'
+                value: '{$VFS.FS.FSTYPE.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: F
+              -
+                macro: '{#FSNAME}'
+                value: '{$VFS.FS.FSNAME.MATCHES}'
+                formulaid: C
+              -
+                macro: '{#FSNAME}'
+                value: '{$VFS.FS.FSNAME.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: D
+              -
+                macro: '{#FSDRIVETYPE}'
+                value: '{$VFS.FS.FSDRIVETYPE.MATCHES}'
+                formulaid: A
+              -
+                macro: '{#FSDRIVETYPE}'
+                value: '{$VFS.FS.FSDRIVETYPE.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: B
+          description: 'Discovery of file systems of different types.'
+          item_prototypes:
+            -
+              uuid: 3a84aeaae7664bc69c2e815145dc06c2
+              name: '{#FSLABEL}({#FSNAME}): Space utilization'
+              type: ZABBIX_ACTIVE
+              key: 'vfs.fs.size[{#FSNAME},pused]'
+              history: 7d
+              value_type: FLOAT
+              units: '%'
+              description: 'Space utilization in % for {#FSNAME}'
+              tags:
+                -
+                  tag: component
+                  value: storage
+                -
+                  tag: filesystem
+                  value: '{#FSNAME}'
+            -
+              uuid: d8448fc247a34321ab62303da0404944
+              name: '{#FSLABEL}({#FSNAME}): Total space'
+              type: ZABBIX_ACTIVE
+              key: 'vfs.fs.size[{#FSNAME},total]'
+              history: 7d
+              units: B
+              description: 'Total space in Bytes'
+              tags:
+                -
+                  tag: component
+                  value: storage
+                -
+                  tag: filesystem
+                  value: '{#FSNAME}'
+            -
+              uuid: 7ebf9161ca94415fa217d906d3372fc3
+              name: '{#FSLABEL}({#FSNAME}): Used space'
+              type: ZABBIX_ACTIVE
+              key: 'vfs.fs.size[{#FSNAME},used]'
+              history: 7d
+              units: B
+              description: 'Used storage in Bytes'
+              tags:
+                -
+                  tag: component
+                  value: storage
+                -
+                  tag: filesystem
+                  value: '{#FSNAME}'
+          trigger_prototypes:
+            -
+              uuid: 62c7df8ec55c4a7b87a3a19e4dfbc5f9
+              expression: |
+                last(/Extra - Windows by Zabbix agent active/vfs.fs.size[{#FSNAME},pused])>{$VFS.FS.PUSED.MAX.CRIT:"{#FSNAME}"} and
+                ((last(/Extra - Windows by Zabbix agent active/vfs.fs.size[{#FSNAME},total])-last(/Extra - Windows by Zabbix agent active/vfs.fs.size[{#FSNAME},used]))<{$VFS.FS.FREE.MIN.CRIT:"{#FSNAME}"} or timeleft(/Extra - Windows by Zabbix agent active/vfs.fs.size[{#FSNAME},pused],1h,100)<1d)
+              name: '{#FSLABEL}({#FSNAME}): Disk space is critically low'
+              event_name: '{#FSLABEL}({#FSNAME}): Disk space is critically low (used > {$VFS.FS.PUSED.MAX.CRIT:"{#FSNAME}"}%)'
+              opdata: 'Space used: {ITEM.LASTVALUE3} of {ITEM.LASTVALUE2} ({ITEM.LASTVALUE1})'
+              priority: AVERAGE
+              description: |
+                Two conditions should match: First, space utilization should be above {$VFS.FS.PUSED.MAX.CRIT:"{#FSNAME}"}.
+                Second condition should be one of the following:
+                - The disk free space is less than {$VFS.FS.FREE.MIN.CRIT:"{#FSNAME}"}.
+                - The disk will be full in less than 24 hours.
+              tags:
+                -
+                  tag: scope
+                  value: capacity
+            -
+              uuid: 1ce04ee55d1a4270a3c84b8fbb381ab3
+              expression: |
+                last(/Extra - Windows by Zabbix agent active/vfs.fs.size[{#FSNAME},pused])>{$VFS.FS.PUSED.MAX.WARN:"{#FSNAME}"} and
+                ((last(/Extra - Windows by Zabbix agent active/vfs.fs.size[{#FSNAME},total])-last(/Extra - Windows by Zabbix agent active/vfs.fs.size[{#FSNAME},used]))<{$VFS.FS.FREE.MIN.WARN:"{#FSNAME}"} or timeleft(/Extra - Windows by Zabbix agent active/vfs.fs.size[{#FSNAME},pused],1h,100)<1d)
+              name: '{#FSLABEL}({#FSNAME}): Disk space is low'
+              event_name: '{#FSLABEL}({#FSNAME}): Disk space is low (used > {$VFS.FS.PUSED.MAX.WARN:"{#FSNAME}"}%)'
+              opdata: 'Space used: {ITEM.LASTVALUE3} of {ITEM.LASTVALUE2} ({ITEM.LASTVALUE1})'
+              priority: WARNING
+              description: |
+                Two conditions should match: First, space utilization should be above {$VFS.FS.PUSED.MAX.WARN:"{#FSNAME}"}.
+                Second condition should be one of the following:
+                - The disk free space is less than {$VFS.FS.FREE.MIN.WARN:"{#FSNAME}"}.
+                - The disk will be full in less than 24 hours.
+              dependencies:
+                -
+                  name: '{#FSLABEL}({#FSNAME}): Disk space is critically low'
+                  expression: |
+                    last(/Extra - Windows by Zabbix agent active/vfs.fs.size[{#FSNAME},pused])>{$VFS.FS.PUSED.MAX.CRIT:"{#FSNAME}"} and
+                    ((last(/Extra - Windows by Zabbix agent active/vfs.fs.size[{#FSNAME},total])-last(/Extra - Windows by Zabbix agent active/vfs.fs.size[{#FSNAME},used]))<{$VFS.FS.FREE.MIN.CRIT:"{#FSNAME}"} or timeleft(/Extra - Windows by Zabbix agent active/vfs.fs.size[{#FSNAME},pused],1h,100)<1d)
+              tags:
+                -
+                  tag: scope
+                  value: capacity
+          graph_prototypes:
+            -
+              uuid: d0c7940609724090b5736138e4319428
+              name: '{#FSLABEL}({#FSNAME}): Disk space usage'
+              width: '600'
+              height: '340'
+              type: PIE
+              show_3d: 'YES'
+              graph_items:
+                -
+                  color: '969696'
+                  calc_fnc: LAST
+                  type: GRAPH_SUM
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'vfs.fs.size[{#FSNAME},total]'
+                -
+                  sortorder: '1'
+                  color: C80000
+                  calc_fnc: LAST
+                  item:
+                    host: 'Extra - Windows by Zabbix agent active'
+                    key: 'vfs.fs.size[{#FSNAME},used]'
+      tags:
+        -
+          tag: class
+          value: os
+        -
+          tag: target
+          value: windows
+      macros:
+        -
+          macro: '{$AGENT.NODATA_TIMEOUT}'
+          value: 30m
+          description: 'No data timeout for active agents. Consider to keep it relatively high.'
+        -
+          macro: '{$CPU.INTERRUPT.CRIT.MAX}'
+          value: '50'
+          description: 'The critical threshold of the % Interrupt Time counter.'
+        -
+          macro: '{$CPU.PRIV.CRIT.MAX}'
+          value: '30'
+          description: 'The threshold of the % Privileged Time counter.'
+        -
+          macro: '{$CPU.QUEUE.CRIT.MAX}'
+          value: '3'
+          description: 'The threshold of the Processor Queue Length counter.'
+        -
+          macro: '{$CPU.UTIL.CRIT}'
+          value: '90'
+          description: 'The critical threshold of the CPU utilization in %.'
+        -
+          macro: '{$IF.ERRORS.WARN}'
+          value: '2'
+        -
+          macro: '{$IF.UTIL.MAX}'
+          value: '90'
+        -
+          macro: '{$IFCONTROL}'
+          value: '1'
+        -
+          macro: '{$MEM.PAGE_SEC.CRIT.MAX}'
+          value: '1000'
+          description: 'The warning threshold of the Memory Pages/sec counter.'
+        -
+          macro: '{$MEM.PAGE_TABLE_CRIT.MIN}'
+          value: '5000'
+          description: 'The warning threshold of the Free System Page Table Entries counter.'
+        -
+          macro: '{$MEMORY.UTIL.MAX}'
+          value: '90'
+          description: 'The warning threshold of the Memory util item.'
+        -
+          macro: '{$NET.IF.IFALIAS.MATCHES}'
+          value: '.*'
+          description: 'This macro is used in Network interface discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$NET.IF.IFALIAS.NOT_MATCHES}'
+          value: CHANGE_THIS
+          description: 'This macro is used in Network interface discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$NET.IF.IFDESCR.MATCHES}'
+          value: '.*'
+          description: 'This macro is used in Network interface discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$NET.IF.IFDESCR.NOT_MATCHES}'
+          value: CHANGE_THIS
+          description: 'This macro is used in Network interface discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$NET.IF.IFNAME.MATCHES}'
+          value: '.*'
+          description: 'This macro is used in Network interface discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$NET.IF.IFNAME.NOT_MATCHES}'
+          value: Miniport|Virtual|Teredo|Kernel|Loopback|Bluetooth|HTTPS|6to4|QoS|Layer
+          description: 'This macro is used in Network interface discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$SERVICE.NAME.MATCHES}'
+          value: '^.*$'
+          description: 'This macro is used in Service discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$SERVICE.NAME.NOT_MATCHES}'
+          value: '^(?:RemoteRegistry|MMCSS|gupdate|SysmonLog|clr_optimization_v.+|sppsvc|gpsvc|Pml Driver HPZ12|Net Driver HPZ12|MapsBroker|IntelAudioService|Intel\(R\) TPM Provisioning Service|dbupdate|DoSvc|CDPUserSvc_.+|WpnUserService_.+|OneSyncSvc_.+|WbioSrvc|BITS|tiledatamodelsvc|GISvc|ShellHWDetection|TrustedInstaller|TabletInputService|CDPSvc|wuauserv|edgeupdate|dmwappushservice|MicrosoftSearchInBing|cloudbase-init)$'
+          description: 'This macro is used in Service discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$SERVICE.STARTUPNAME.MATCHES}'
+          value: '^(?:automatic|automatic delayed)$'
+          description: 'This macro is used in Service discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$SERVICE.STARTUPNAME.NOT_MATCHES}'
+          value: '^(?:manual|disabled)$'
+          description: 'This macro is used in Service discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$SWAP.PFREE.MIN.WARN}'
+          value: '20'
+          description: 'The warning threshold of the minimum free swap.'
+        -
+          macro: '{$SYSTEM.FUZZYTIME.MAX}'
+          value: '60'
+          description: 'The threshold for difference of system time in seconds.'
+        -
+          macro: '{$VFS.DEV.DEVNAME.MATCHES}'
+          value: '.*'
+          description: 'This macro is used in physical disks discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$VFS.DEV.DEVNAME.NOT_MATCHES}'
+          value: _Total
+          description: 'This macro is used in physical disks discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$VFS.DEV.READ.AWAIT.WARN}'
+          value: '0.02'
+          description: 'Disk read average response time (in s) before the trigger would fire.'
+        -
+          macro: '{$VFS.DEV.UTIL.MAX.WARN}'
+          value: '95'
+          description: 'The warning threshold of disk time utilization in percent.'
+        -
+          macro: '{$VFS.DEV.WRITE.AWAIT.WARN}'
+          value: '0.02'
+          description: 'Disk write average response time (in s) before the trigger would fire.'
+        -
+          macro: '{$VFS.FS.FREE.MIN.CRIT}'
+          value: 5G
+          description: 'The critical threshold of the filesystem utilization.'
+        -
+          macro: '{$VFS.FS.FREE.MIN.WARN}'
+          value: 10G
+          description: 'The warning threshold of the filesystem utilization.'
+        -
+          macro: '{$VFS.FS.FSDRIVETYPE.MATCHES}'
+          value: fixed
+          description: 'This macro is used in filesystems discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$VFS.FS.FSDRIVETYPE.NOT_MATCHES}'
+          value: ^\s$
+          description: 'This macro is used in filesystems discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$VFS.FS.FSNAME.MATCHES}'
+          value: '.*'
+          description: 'This macro is used in filesystems discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$VFS.FS.FSNAME.NOT_MATCHES}'
+          value: '^(?:/dev|/sys|/run|/proc|.+/shm$)'
+          description: 'This macro is used in filesystems discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$VFS.FS.FSTYPE.MATCHES}'
+          value: '.*'
+          description: 'This macro is used in filesystems discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$VFS.FS.FSTYPE.NOT_MATCHES}'
+          value: ^\s$
+          description: 'This macro is used in filesystems discovery. Can be overridden on the host or linked template level.'
+        -
+          macro: '{$VFS.FS.PUSED.MAX.CRIT}'
+          value: '90'
+          description: 'The critical threshold of the filesystem utilization in percent.'
+        -
+          macro: '{$VFS.FS.PUSED.MAX.WARN}'
+          value: '80'
+          description: 'The warning threshold of the filesystem utilization in percent.'
+      dashboards:
+        -
+          uuid: 6df905457bf04e28a0993f5590bc0894
+          name: 'Network interfaces'
+          pages:
+            -
+              widgets:
+                -
+                  type: GRAPH_PROTOTYPE
+                  width: '24'
+                  height: '5'
+                  fields:
+                    -
+                      type: INTEGER
+                      name: source_type
+                      value: '2'
+                    -
+                      type: INTEGER
+                      name: columns
+                      value: '1'
+                    -
+                      type: INTEGER
+                      name: rows
+                      value: '1'
+                    -
+                      type: GRAPH_PROTOTYPE
+                      name: graphid
+                      value:
+                        host: 'Extra - Windows by Zabbix agent active'
+                        name: 'Interface {#IFNAME}({#IFALIAS}): Network traffic'
+        -
+          uuid: 6dcc1ebc28a141ceaf8eaa91bf30eb5d
+          name: 'System performance'
+          pages:
+            -
+              widgets:
+                -
+                  type: GRAPH_CLASSIC
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: INTEGER
+                      name: source_type
+                      value: '0'
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Extra - Windows by Zabbix agent active'
+                        name: 'CPU usage'
+                -
+                  type: GRAPH_CLASSIC
+                  x: '12'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: INTEGER
+                      name: source_type
+                      value: '1'
+                    -
+                      type: ITEM
+                      name: itemid
+                      value:
+                        host: 'Extra - Windows by Zabbix agent active'
+                        key: 'perf_counter_en["\System\Processor Queue Length"]'
+                -
+                  type: GRAPH_CLASSIC
+                  'y': '5'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: INTEGER
+                      name: source_type
+                      value: '0'
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Extra - Windows by Zabbix agent active'
+                        name: 'Memory utilization'
+                -
+                  type: GRAPH_CLASSIC
+                  x: '12'
+                  'y': '5'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: INTEGER
+                      name: source_type
+                      value: '0'
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Extra - Windows by Zabbix agent active'
+                        name: 'Swap usage'
+                -
+                  type: GRAPH_PROTOTYPE
+                  'y': '10'
+                  width: '24'
+                  height: '5'
+                  fields:
+                    -
+                      type: INTEGER
+                      name: source_type
+                      value: '2'
+                    -
+                      type: INTEGER
+                      name: columns
+                      value: '1'
+                    -
+                      type: INTEGER
+                      name: rows
+                      value: '1'
+                    -
+                      type: GRAPH_PROTOTYPE
+                      name: graphid
+                      value:
+                        host: 'Extra - Windows by Zabbix agent active'
+                        name: '{#FSLABEL}({#FSNAME}): Disk space usage'
+                -
+                  type: GRAPH_PROTOTYPE
+                  'y': '15'
+                  width: '24'
+                  height: '5'
+                  fields:
+                    -
+                      type: INTEGER
+                      name: source_type
+                      value: '2'
+                    -
+                      type: INTEGER
+                      name: columns
+                      value: '1'
+                    -
+                      type: INTEGER
+                      name: rows
+                      value: '1'
+                    -
+                      type: GRAPH_PROTOTYPE
+                      name: graphid
+                      value:
+                        host: 'Extra - Windows by Zabbix agent active'
+                        name: '{#DEVNAME}: Disk read/write rates'
+                -
+                  type: GRAPH_PROTOTYPE
+                  'y': '20'
+                  width: '24'
+                  height: '5'
+                  fields:
+                    -
+                      type: INTEGER
+                      name: source_type
+                      value: '2'
+                    -
+                      type: INTEGER
+                      name: columns
+                      value: '1'
+                    -
+                      type: INTEGER
+                      name: rows
+                      value: '1'
+                    -
+                      type: GRAPH_PROTOTYPE
+                      name: graphid
+                      value:
+                        host: 'Extra - Windows by Zabbix agent active'
+                        name: '{#DEVNAME}: Disk utilization and queue'
+                -
+                  type: GRAPH_PROTOTYPE
+                  'y': '25'
+                  width: '24'
+                  height: '5'
+                  fields:
+                    -
+                      type: INTEGER
+                      name: source_type
+                      value: '2'
+                    -
+                      type: INTEGER
+                      name: columns
+                      value: '1'
+                    -
+                      type: INTEGER
+                      name: rows
+                      value: '1'
+                    -
+                      type: GRAPH_PROTOTYPE
+                      name: graphid
+                      value:
+                        host: 'Extra - Windows by Zabbix agent active'
+                        name: 'Interface {#IFNAME}({#IFALIAS}): Network traffic'
+      valuemaps:
+        -
+          uuid: cefe581d42074aa3912a2b20ab3a749b
+          name: 'Win32_NetworkAdapter::AdapterTypeId'
+          mappings:
+            -
+              value: '0'
+              newvalue: 'Ethernet 802.3'
+            -
+              value: '1'
+              newvalue: 'Token Ring 802.5'
+            -
+              value: '2'
+              newvalue: 'Fiber Distributed Data Interface (FDDI)'
+            -
+              value: '3'
+              newvalue: 'Wide Area Network (WAN)'
+            -
+              value: '4'
+              newvalue: LocalTalk
+            -
+              value: '5'
+              newvalue: 'Ethernet using DIX header format'
+            -
+              value: '6'
+              newvalue: ARCNET
+            -
+              value: '7'
+              newvalue: 'ARCNET (878.2)'
+            -
+              value: '8'
+              newvalue: ATM
+            -
+              value: '9'
+              newvalue: Wireless
+            -
+              value: '10'
+              newvalue: 'Infrared Wireless'
+            -
+              value: '11'
+              newvalue: Bpc
+            -
+              value: '12'
+              newvalue: CoWan
+            -
+              value: '13'
+              newvalue: '1394'
+        -
+          uuid: b0d27a82dd2349408f5dde11b37dcb1c
+          name: 'Win32_NetworkAdapter::NetConnectionStatus'
+          mappings:
+            -
+              value: '0'
+              newvalue: Disconnected
+            -
+              value: '1'
+              newvalue: Connecting
+            -
+              value: '2'
+              newvalue: Connected
+            -
+              value: '3'
+              newvalue: Disconnecting
+            -
+              value: '4'
+              newvalue: 'Hardware Not Present'
+            -
+              value: '5'
+              newvalue: 'Hardware Disabled'
+            -
+              value: '6'
+              newvalue: 'Hardware Malfunction'
+            -
+              value: '7'
+              newvalue: 'Media Disconnected'
+            -
+              value: '8'
+              newvalue: Authenticating
+            -
+              value: '9'
+              newvalue: 'Authentication Succeeded'
+            -
+              value: '10'
+              newvalue: 'Authentication Failed'
+            -
+              value: '11'
+              newvalue: 'Invalid Address'
+            -
+              value: '12'
+              newvalue: 'Credentials Required'
+        -
+          uuid: 93c00820ed4c49d5b02d7bbf8b5ddef3
+          name: 'Windows service state'
+          mappings:
+            -
+              value: '0'
+              newvalue: Running
+            -
+              value: '1'
+              newvalue: Paused
+            -
+              value: '2'
+              newvalue: 'Start pending'
+            -
+              value: '3'
+              newvalue: 'Pause pending'
+            -
+              value: '4'
+              newvalue: 'Continue pending'
+            -
+              value: '5'
+              newvalue: 'Stop pending'
+            -
+              value: '6'
+              newvalue: Stopped
+            -
+              value: '7'
+              newvalue: Unknown
+            -
+              value: '255'
+              newvalue: 'No such service'
+        -
+          uuid: e3260f3397c74b3c83d7f2ac9d5b30c2
+          name: zabbix.host.available
+          mappings:
+            -
+              value: '0'
+              newvalue: 'not available'
+            -
+              value: '1'
+              newvalue: available
+            -
+              value: '2'
+              newvalue: unknown
+        -
+          uuid: ca5f09139f464a2faa4f2142c7863e7f
+          name: 'Zabbix agent ping status'
+          mappings:
+            -
+              value: '1'
+              newvalue: Up
+  triggers:
+    -
+      uuid: bec5caa9b7904768890655b72b6a1da3
+      expression: 'min(/Extra - Windows by Zabbix agent active/perf_counter_en["\System\Processor Queue Length"],5m) - last(/Extra - Windows by Zabbix agent active/wmi.get[root/cimv2,"Select NumberOfLogicalProcessors from Win32_ComputerSystem"]) * 2 > {$CPU.QUEUE.CRIT.MAX}'
+      name: 'CPU queue length is too high'
+      event_name: 'CPU queue length is too high (over {$CPU.QUEUE.CRIT.MAX} for 5m)'
+      priority: WARNING
+      description: 'The CPU Queue Length in the last 5 minutes exceeds {$CPU.QUEUE.CRIT.MAX}. According to actual observations, PQL should not exceed the number of cores * 2. To fine-tune the conditions, use the macro {$CPU.QUEUE.CRIT.MAX }.'
+      dependencies:
+        -
+          name: 'High CPU utilization'
+          expression: 'min(/Extra - Windows by Zabbix agent active/system.cpu.util,5m)>{$CPU.UTIL.CRIT}'
+      tags:
+        -
+          tag: scope
+          value: performance
+    -
+      uuid: c7aef6e36dec4d8097b3cdb9f6e2528d
+      expression: 'max(/Extra - Windows by Zabbix agent active/system.swap.pfree,5m)<{$SWAP.PFREE.MIN.WARN} and last(/Extra - Windows by Zabbix agent active/system.swap.size[,total])>0'
+      name: 'High swap space usage'
+      event_name: 'High swap space usage (less than {$SWAP.PFREE.MIN.WARN}% free)'
+      opdata: 'Free: {ITEM.LASTVALUE1}, total: {ITEM.LASTVALUE2}'
+      priority: WARNING
+      description: 'This trigger is ignored, if there is no swap configured'
+      dependencies:
+        -
+          name: 'High memory utilization'
+          expression: 'min(/Extra - Windows by Zabbix agent active/vm.memory.util,5m)>{$MEMORY.UTIL.MAX}'
+      tags:
+        -
+          tag: scope
+          value: performance
+  graphs:
+    -
+      uuid: 6d8ae359363a4398b01fe30ea0cee783
+      name: 'CPU jumps'
+      graph_items:
+        -
+          color: 1A7C11
+          item:
+            host: 'Extra - Windows by Zabbix agent active'
+            key: 'perf_counter_en["\System\Context Switches/sec"]'
+        -
+          sortorder: '1'
+          color: 2774A4
+          item:
+            host: 'Extra - Windows by Zabbix agent active'
+            key: 'perf_counter_en["\Processor Information(_total)\% Interrupt Time"]'
+    -
+      uuid: f0ac6116afde4368907af5581e4a71ce
+      name: 'CPU usage'
+      type: STACKED
+      ymin_type_1: FIXED
+      ymax_type_1: FIXED
+      graph_items:
+        -
+          color: 1A7C11
+          item:
+            host: 'Extra - Windows by Zabbix agent active'
+            key: 'perf_counter_en["\Processor Information(_total)\% User Time"]'
+        -
+          sortorder: '1'
+          color: 2774A4
+          item:
+            host: 'Extra - Windows by Zabbix agent active'
+            key: 'perf_counter_en["\Processor Information(_total)\% Privileged Time"]'
+    -
+      uuid: 081df143c3344a2f951462bf8cd2fceb
+      name: 'CPU utilization'
+      ymin_type_1: FIXED
+      ymax_type_1: FIXED
+      graph_items:
+        -
+          drawtype: GRADIENT_LINE
+          color: 1A7C11
+          item:
+            host: 'Extra - Windows by Zabbix agent active'
+            key: system.cpu.util
+    -
+      uuid: 9fdc1dc217b846b680c1ad3d25e7da1a
+      name: 'Memory utilization'
+      ymin_type_1: FIXED
+      ymax_type_1: FIXED
+      graph_items:
+        -
+          drawtype: GRADIENT_LINE
+          color: 1A7C11
+          item:
+            host: 'Extra - Windows by Zabbix agent active'
+            key: vm.memory.util
+    -
+      uuid: 6663cf78e9814fb0928c195a17a3fecd
+      name: 'Swap usage'
+      graph_items:
+        -
+          color: 1A7C11
+          item:
+            host: 'Extra - Windows by Zabbix agent active'
+            key: system.swap.free
+        -
+          sortorder: '1'
+          color: 2774A4
+          item:
+            host: 'Extra - Windows by Zabbix agent active'
+            key: 'system.swap.size[,total]'

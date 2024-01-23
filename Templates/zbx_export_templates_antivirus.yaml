@@ -1,0 +1,44 @@
+zabbix_export:
+  version: '6.0'
+  date: '2024-01-23T13:24:42Z'
+  groups:
+    -
+      uuid: 0f538ce79d794d06bd8747afce0fe557
+      name: Windows
+  templates:
+    -
+      uuid: b3983b0cd0c2495eacb7949fc68d744c
+      template: 'Extra - Antivirus'
+      name: 'Extra - Antivirus'
+      description: 'Chequea el estado del antivirus, si está activo o no y también si está actualizado'
+      groups:
+        -
+          name: Windows
+      items:
+        -
+          uuid: 2daa3db1537d403187377b03c74ef06d
+          name: AntivirusStatus
+          key: AntivirusStatus
+          history: 5d
+          trends: '0'
+          value_type: TEXT
+          triggers:
+            -
+              uuid: 7cafc3170deb4a90857217556643ee7f
+              expression: 'last(/Extra - Antivirus/AntivirusStatus)="False"'
+              name: 'Antivirus no activo'
+              priority: DISASTER
+        -
+          uuid: a1bcf8f19485469a87d9cd41227bbf62
+          name: AntivirusUpdates
+          key: AntivirusUpdates
+          delay: 90m
+          history: 5d
+          trends: '0'
+          value_type: TEXT
+          triggers:
+            -
+              uuid: b89a136b9a174387aeb0d5ef37020683
+              expression: 'last(/Extra - Antivirus/AntivirusUpdates)="False"'
+              name: 'Las firmas del antivirus están fuera de fecha'
+              priority: HIGH

@@ -1,0 +1,43 @@
+zabbix_export:
+  version: '6.0'
+  date: '2024-01-19T08:24:15Z'
+  groups:
+    -
+      uuid: 0f538ce79d794d06bd8747afce0fe557
+      name: Windows
+  templates:
+    -
+      uuid: 407bd3b8a91845ccbd59677f3014265b
+      template: 'Extra - Windows Update'
+      name: 'Extra - Windows Update'
+      groups:
+        -
+          name: Windows
+      items:
+        -
+          uuid: dc90e12df9764e4a92d9216b10858c21
+          name: 'Count Uninstalled Updates'
+          type: ZABBIX_ACTIVE
+          key: CountUninstalledUpdates
+          delay: 1d
+        -
+          uuid: 16e9cd755721400090cc00a597b6a538
+          name: 'Days Since Last Windows Update'
+          type: ZABBIX_ACTIVE
+          key: DaysSinceLastUpdate
+          delay: 5h
+          triggers:
+            -
+              uuid: f240e5ca029145a09e7cbc41aa402af9
+              expression: 'last(/Extra - Windows Update/DaysSinceLastUpdate)>60'
+              name: 'Más de 2 meses sin ejecutar Windows Update'
+              priority: AVERAGE
+              manual_close: 'YES'
+        -
+          uuid: 21eb3cca71de4af692353b7e12ca6bae
+          name: 'List Uninstalled Updates'
+          type: ZABBIX_ACTIVE
+          key: ListUninstalledUpdates
+          delay: 1d
+          trends: '0'
+          value_type: TEXT

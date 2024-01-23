@@ -1,0 +1,149 @@
+zabbix_export:
+  version: '6.0'
+  date: '2024-01-19T08:23:13Z'
+  groups:
+    -
+      uuid: 0f538ce79d794d06bd8747afce0fe557
+      name: Windows
+  templates:
+    -
+      uuid: f82f5418be4e42db8d58830448f6fd00
+      template: 'Extra - Task Scheduler Windows'
+      name: 'Extra - Task Scheduler Windows'
+      groups:
+        -
+          name: Windows
+      items:
+        -
+          uuid: e0e490d9f7e64b7299d3613c28b6f1e9
+          name: BackupBBDD
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-TaskScheduler/Operational,"\BackupBBDD",,TaskScheduler,,,skip]'
+          history: 30d
+          trends: '0'
+          value_type: LOG
+          triggers:
+            -
+              uuid: 8b3c2d15db5e4e25bd3bca1a3379d315
+              expression: 'logeventid(/Extra - Task Scheduler Windows/eventlog[Microsoft-Windows-TaskScheduler/Operational,"\BackupBBDD",,TaskScheduler,,,skip],,102)=0'
+              name: 'La tarea BackupBBDD no se ha completado'
+              status: DISABLED
+              priority: HIGH
+            -
+              uuid: 62109f1a70c7450ba06206db624528cf
+              expression: 'logeventid(/Extra - Task Scheduler Windows/eventlog[Microsoft-Windows-TaskScheduler/Operational,"\BackupBBDD",,TaskScheduler,,,skip],,142)=1'
+              name: 'La tarea BackupBBDD se ha deshabilitado'
+              priority: HIGH
+            -
+              uuid: ff01e436072c425c9c92140276219060
+              expression: 'logseverity(/Extra - Task Scheduler Windows/eventlog[Microsoft-Windows-TaskScheduler/Operational,"\BackupBBDD",,TaskScheduler,,,skip])>2'
+              name: 'Task Scheduler BackupBBDD Error'
+              priority: HIGH
+              manual_close: 'YES'
+        -
+          uuid: fa55e93dff60423a8ee6e43235e8aed3
+          name: BackupBBDDTareaCompletada
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-TaskScheduler/Operational,"\BackupBBDD",,TaskScheduler,102,,skip]'
+          history: 30d
+          trends: '0'
+          value_type: LOG
+        -
+          uuid: cb8f778c6d084509b2f85192e6df25d3
+          name: BackupBBDDMBO
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-TaskScheduler/Operational,"\BackupBBDDMBO",,TaskScheduler,,,skip]'
+          history: 30d
+          trends: '0'
+          value_type: LOG
+          triggers:
+            -
+              uuid: aa07f7d8c8ff45b79b6ae7ddad31e17a
+              expression: 'logeventid(/Extra - Task Scheduler Windows/eventlog[Microsoft-Windows-TaskScheduler/Operational,"\BackupBBDDMBO",,TaskScheduler,,,skip],,142)=1'
+              name: 'La tarea BackupBBDDMBO se ha deshabilitado'
+              priority: HIGH
+              manual_close: 'YES'
+            -
+              uuid: 9442f18064ae445ca58e2ed5a1813a75
+              expression: 'logseverity(/Extra - Task Scheduler Windows/eventlog[Microsoft-Windows-TaskScheduler/Operational,"\BackupBBDDMBO",,TaskScheduler,,,skip])>2'
+              name: 'Task Scheduler BackupBBDDMBO Error'
+              priority: HIGH
+              manual_close: 'YES'
+        -
+          uuid: 2d63faa5131045509ff3fdb4a5335709
+          name: CheckDB
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-TaskScheduler/Operational,"\CheckDB",,TaskScheduler,,,skip]'
+          history: 30d
+          trends: '0'
+          value_type: LOG
+          triggers:
+            -
+              uuid: 830f8012ed4742d69c45b638a43f13a3
+              expression: 'logeventid(/Extra - Task Scheduler Windows/eventlog[Microsoft-Windows-TaskScheduler/Operational,"\CheckDB",,TaskScheduler,,,skip],,142)=1'
+              name: 'La tarea CheckDB se ha deshabilitado'
+              priority: HIGH
+            -
+              uuid: cb37bba0fa154d29a1b1953df5303dcf
+              expression: 'logseverity(/Extra - Task Scheduler Windows/eventlog[Microsoft-Windows-TaskScheduler/Operational,"\CheckDB",,TaskScheduler,,,skip])>2'
+              name: 'Task Scheduler CheckDB Error'
+              priority: HIGH
+              manual_close: 'YES'
+        -
+          uuid: 5eca39ed54fe4ed6b6a6e7ec00eda105
+          name: IndexOrg
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-TaskScheduler/Operational,"\IndexOrg",,TaskScheduler,,,skip]'
+          history: 30d
+          trends: '0'
+          value_type: LOG
+          triggers:
+            -
+              uuid: be276ed3647c400087eac55485113714
+              expression: 'logeventid(/Extra - Task Scheduler Windows/eventlog[Microsoft-Windows-TaskScheduler/Operational,"\IndexOrg",,TaskScheduler,,,skip],,142)=1'
+              name: 'La tarea IndexOrg se ha deshabilitado'
+              priority: HIGH
+              manual_close: 'YES'
+            -
+              uuid: fc271a5141164babb55633834c1a244a
+              expression: 'logseverity(/Extra - Task Scheduler Windows/eventlog[Microsoft-Windows-TaskScheduler/Operational,"\IndexOrg",,TaskScheduler,,,skip])>2'
+              name: 'Task Scheduler  IndexOrg Error'
+              priority: HIGH
+              manual_close: 'YES'
+        -
+          uuid: a3741babd0874dcd8448c7b65a055414
+          name: RebuildIndex
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-TaskScheduler/Operational,"\RebuildIndex",,TaskScheduler,,,skip]'
+          history: 30d
+          trends: '0'
+          value_type: LOG
+          triggers:
+            -
+              uuid: fca33dbb866f452a9fb21ea3e09d6492
+              expression: 'logeventid(/Extra - Task Scheduler Windows/eventlog[Microsoft-Windows-TaskScheduler/Operational,"\RebuildIndex",,TaskScheduler,,,skip],,142)=1'
+              name: 'La tarea RebuildIndex se ha deshabilitado'
+              priority: HIGH
+              manual_close: 'YES'
+            -
+              uuid: c9599a11e66f400394f78261e9117c80
+              expression: 'logseverity(/Extra - Task Scheduler Windows/eventlog[Microsoft-Windows-TaskScheduler/Operational,"\RebuildIndex",,TaskScheduler,,,skip])>2'
+              name: 'Task Scheduler RebuildIndex Error'
+              priority: HIGH
+              manual_close: 'YES'
+        -
+          uuid: 112ba687f3af4aa49f19a3c358fd0e2d
+          name: ThemesSyncedImageDownload
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-TaskScheduler/Operational,"\ThemesSyncedImageDownload",,TaskScheduler,,,skip]'
+          history: 30d
+          trends: '0'
+          status: DISABLED
+          value_type: LOG
+          triggers:
+            -
+              uuid: f366df72339644f7a9a46e167ed6da65
+              expression: 'logseverity(/Extra - Task Scheduler Windows/eventlog[Microsoft-Windows-TaskScheduler/Operational,"\ThemesSyncedImageDownload",,TaskScheduler,,,skip])>2'
+              name: 'Task Scheduler ThemesSyncedImageDownload Error'
+              status: DISABLED
+              priority: WARNING

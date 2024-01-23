@@ -1,0 +1,97 @@
+zabbix_export:
+  version: '6.0'
+  date: '2024-01-19T08:22:15Z'
+  groups:
+    -
+      uuid: 846977d1dfed4968bc5f8bdb363285bc
+      name: 'Templates/Operating systems'
+  templates:
+    -
+      uuid: 97ba97b72a9746ceb0d798dc839fed5a
+      template: 'Extra - Logs Windows'
+      name: 'Extra - Logs Windows'
+      description: 'Mostrar los logs de errores'
+      groups:
+        -
+          name: 'Templates/Operating systems'
+      items:
+        -
+          uuid: 933cd3f5370a41eeba324f71292cf9e7
+          name: 'EventLog Application critical'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Application,,"critical"]'
+          history: 30d
+          trends: '0'
+          value_type: LOG
+          tags:
+            -
+              tag: Application
+              value: Log
+          triggers:
+            -
+              uuid: bcf6e00d4a3b46e6a9cde752c5f6cea9
+              expression: 'logseverity(/Extra - Logs Windows/eventlog[Application,,"critical"])=5 and nodata(/Extra - Logs Windows/eventlog[Application,,"critical"],3600s)=0'
+              name: 'EventLog Application critical: {ITEM.LASTVALUE}'
+              event_name: 'EventLog Application critical: {ITEM.LASTVALUE}'
+              priority: HIGH
+        -
+          uuid: 294d1a82179947fb91293ab019550ba8
+          name: 'EventLog Application error'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Application,,"error"]'
+          history: 30d
+          trends: '0'
+          status: DISABLED
+          value_type: LOG
+          logtimefmt: 'ppppddphh:mm:ss'
+          tags:
+            -
+              tag: Application
+              value: Log
+          triggers:
+            -
+              uuid: e1a369ad5e3342db8f0aaebe70056614
+              expression: 'logseverity(/Extra - Logs Windows/eventlog[Application,,"error"])=4 and nodata(/Extra - Logs Windows/eventlog[Application,,"error"],3600s)=0'
+              name: 'EventLog Application error: {ITEM.LASTVALUE}'
+              status: DISABLED
+              priority: AVERAGE
+        -
+          uuid: fca67768f13a49988a9019008c08eb96
+          name: 'EventLog System critical'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[System,,"critical"]'
+          history: 30d
+          trends: '0'
+          value_type: LOG
+          logtimefmt: 'ppppddphh:mm:ss'
+          tags:
+            -
+              tag: Application
+              value: Log
+          triggers:
+            -
+              uuid: 134844572d48485dbc91a881ac7e5551
+              expression: 'logseverity(/Extra - Logs Windows/eventlog[System,,"critical"])=5 and nodata(/Extra - Logs Windows/eventlog[System,,"critical"],3600s)=0'
+              name: 'EventLog System critical: {ITEM.LASTVALUE}'
+              priority: HIGH
+        -
+          uuid: 9fa22951a0be49f8b2bcaf6978f489a0
+          name: 'EventLog System error'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[System,,"error"]'
+          history: 30d
+          trends: '0'
+          status: DISABLED
+          value_type: LOG
+          logtimefmt: 'ppppddphh:mm:ss'
+          tags:
+            -
+              tag: Application
+              value: Log
+          triggers:
+            -
+              uuid: f3a2c08af7b5472f85c09c8abef10e81
+              expression: 'logseverity(/Extra - Logs Windows/eventlog[System,,"error"])=4 and nodata(/Extra - Logs Windows/eventlog[System,,"error"],3600s)=0'
+              name: 'EventLog System error: {ITEM.LASTVALUE}'
+              status: DISABLED
+              priority: AVERAGE
